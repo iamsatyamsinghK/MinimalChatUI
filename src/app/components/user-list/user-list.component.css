@@ -1,0 +1,18 @@
+
+  .content {
+    
+    padding: 20px;
+    width: 10% 
+  }
+  
+  .router-outlet {
+   
+    background-color: #f0f0f0; 
+    padding: 20px;
+    width: 80%; 
+  }
+  .user-chat{
+    display: flex;
+     justify-content: space-between 
+  }
+  

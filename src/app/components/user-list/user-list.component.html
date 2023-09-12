@@ -1,0 +1,31 @@
+<div class="container">
+    <div class="navbar">
+        <h2>ChatZ <button class="navbar-button" (click)="onLogout()">Logout</button></h2>
+        <span>Welcome, {{ user?.name }}</span>
+    </div>
+
+
+    <div class="user-chat">
+
+        <div class="content">
+            <span *ngIf="userList">
+                <table>
+                    <thead>
+                        <tr *ngFor="let users of userList">
+                            <th>
+                                <a [routerLink]="['convo', users.userId]">{{ users.name }}</a>
+
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+
+            </span>
+        </div>
+
+        <div class="router-outlet">
+            <router-outlet></router-outlet>
+        </div>
+
+    </div>
+</div>
