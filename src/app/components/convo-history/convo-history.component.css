@@ -1,0 +1,40 @@
+.message-container {
+    display: flex;
+    flex-direction: column;
+  
+  }
+  
+  .sent-message {
+    align-self: flex-end;
+    background-color: #165c04; /* Green background for sent messages */
+    color: white;
+    margin: 5px;
+    padding: 10px;
+    border-radius: 10px;
+  }
+  
+  .received-message {
+    align-self: flex-start;
+    background-color: rgb(116, 219, 57); /* Gray background for received messages */
+    color: white;
+    margin: 5px;
+    padding: 10px;
+    border-radius: 10px;
+  }
+  
+  .message-input{
+    position: fixed;
+    bottom: 0;
+    display: flex;
+    gap: 20px;
+  }
+  .message-input textarea{
+    width: 100%;
+  }
+  .message-input button{
+    width: 100px;
+    background-color: green;
+    color: white;
+    border: none;
+    font-size: 17px;
+  }

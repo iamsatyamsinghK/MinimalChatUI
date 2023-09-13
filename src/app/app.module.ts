@@ -11,13 +11,15 @@ import { UserListComponent } from './components/user-list/user-list.component';
 import { AuthInterceptor } from './interceptor/auth.interceptor';
 import { RegisterComponent } from './components/register/register.component';
 
+
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
     ConvoHistoryComponent,
     UserListComponent,
-    RegisterComponent
+    RegisterComponent,
+    
   ],
   imports: [
     BrowserModule,

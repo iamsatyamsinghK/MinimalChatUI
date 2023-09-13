@@ -10,6 +10,9 @@ import { RegisterRequest } from '../models/register-request.model';
 import { RegisterResponse } from '../models/register-response.model';
 import { ConvoHistoryResponse } from '../models/convo-history-response.model';
 import { ConvoHistoryRequest } from '../models/convo-history-request.model';
+import { SendMessageRequest } from '../models/send-message-request.model';
+import { SendMessageResponse } from '../models/send-message-response.model';
+import { EditMessageRequest } from '../models/edit-message-request.model';
 
 @Injectable({
   providedIn: 'root'
@@ -33,7 +36,16 @@ export class AuthService {
   }
 
   getConvoHistory(request: ConvoHistoryRequest): Observable<ConvoHistoryResponse[]>{
-    return this.http.get<ConvoHistoryResponse[]>(`${environment.apiBaseUrl}/api/UserCRUD/messages?UserId=${request.userId}`)
+    const formattedDate = request.before?.toISOString() || new Date().toISOString();
+    return this.http.get<ConvoHistoryResponse[]>(`${environment.apiBaseUrl}/api/UserCRUD/messages?UserId=${request.userId}&Before=${encodeURIComponent(formattedDate)}&Count=${request.count}&Sort=${request.sort}`)
+  }
+
+  sendMessage(request: SendMessageRequest): Observable<SendMessageResponse>{
+    return this.http.post<SendMessageResponse>(`${environment.apiBaseUrl}/api/UserCRUD`, request);
+  }
+
+  editMessage(request: EditMessageRequest): Observable<any>{
+    return this.http.put<any>(`${environment.apiBaseUrl}/api/UserCRUD`, request);
   }
 
 

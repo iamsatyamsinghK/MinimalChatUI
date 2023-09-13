@@ -1,5 +1,5 @@
-export interface ConvoHistoryResponse{
-    id: number;
+export interface SendMessageResponse{
+    messageId: number;
     senderId: number;
     receiverId: number;
     content: string;

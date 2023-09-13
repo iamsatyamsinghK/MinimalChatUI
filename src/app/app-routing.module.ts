@@ -6,6 +6,7 @@ import { UserListComponent } from './components/user-list/user-list.component';
 import { authGuard } from './components/guards/auth.guard';
 import { RegisterComponent } from './components/register/register.component';
 
+
 const routes: Routes = [
 
   {
@@ -36,7 +37,8 @@ const routes: Routes = [
         path: 'convo/:id', // Child route
         component: ConvoHistoryComponent,
         canActivate: [authGuard]
-      }
+      },
+      
     ]
   }
   
