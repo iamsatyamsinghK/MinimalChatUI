@@ -10,6 +10,7 @@ import { ConvoHistoryComponent } from './components/convo-history/convo-history.
 import { UserListComponent } from './components/user-list/user-list.component'; 
 import { AuthInterceptor } from './interceptor/auth.interceptor';
 import { RegisterComponent } from './components/register/register.component';
+import { LogsComponent } from './components/logs/logs/logs.component';
 
 
 @NgModule({
@@ -19,6 +20,7 @@ import { RegisterComponent } from './components/register/register.component';
     ConvoHistoryComponent,
     UserListComponent,
     RegisterComponent,
+    LogsComponent,
     
   ],
   imports: [

@@ -20,6 +20,8 @@ export class ConvoHistoryComponent implements OnInit, OnDestroy, OnChanges {
 
   editingIndex: number | null = null;
 
+  editedMessageContent: string = '';
+
   convoHistory: ConvoHistoryResponse[] = [];
 
 
@@ -35,147 +37,166 @@ export class ConvoHistoryComponent implements OnInit, OnDestroy, OnChanges {
 
   modelEdit: EditMessageRequest
 
-  constructor(private authService: AuthService, private route: ActivatedRoute){
-    this.model ={
+  constructor(private authService: AuthService, private route: ActivatedRoute) {
+    this.model = {
       userId: 0,
       before: new Date(),
       count: 5000,
       sort: 'asc'
     };
-    this.modelSend ={
+    this.modelSend = {
       receiverId: 0,
-      content:''
+      content: ''
     };
-    this.modelEdit ={
+    this.modelEdit = {
       messageId: 0,
-      content:''
+      content: ''
     };
   }
-  
+
   ngOnInit(): void {
 
     this.authService.user().subscribe({
-      next:(response)=> {
+      next: (response) => {
         this.user = response;
       }
     });
 
     this.user = this.authService.getUser();
-    
+
     this.route.paramMap.subscribe({
-      next: (params)=> {
-        this.receiverId =  params.get('id');
+      next: (params) => {
+        this.receiverId = params.get('id');
         if (this.receiverId !== null) {
           this.model.userId = parseInt(this.receiverId, 10);
           this.modelSend.receiverId = parseInt(this.receiverId, 10);
-          
+
           this.getConvoHistory();
         }
       }
     });
   }
-  
+
   ngOnDestroy(): void {
     this.paramsSubscription?.unsubscribe();
   }
-  
+
   ngOnChanges(changes: SimpleChanges): void {
     // Check if the 'receiverId' property has changed
     if (changes['receiverId'] && !changes['receiverId'].firstChange) {
       // 'changes['receiverId'].currentValue' contains the new 'receiverId' value
       const newReceiverId = changes['receiverId'].currentValue;
-  
+
       // Update the 'model.userId' with the new 'receiverId' value
       this.model.userId = parseInt(newReceiverId, 10);
-  
+
       // Call the API to get updated messages
-      this.getConvoHistory(); 
+      this.getConvoHistory();
     }
   }
 
   private getConvoHistory() {
     this.authService.getConvoHistory(this.model).subscribe({
-        next: (response) => {
-          this.convoHistory = response; 
-        }
-      });
-    }
-
-    sendMessage() {
-      if (this.modelSend.content.trim() === '') {
-        return; 
+      next: (response) => {
+        this.convoHistory = response;
       }
-  
-      this.authService.sendMessage(this.modelSend).subscribe({
-        next: (response) => {
-
-          this.message = response;
-
-          // Create a new message object from the response
-          const newMessage: ConvoHistoryResponse = {
-            id: this.message.messageId,
-            receiverId: this.message.receiverId,
-            senderId: this.message.senderId,
-            content: this.message.content,
-            timeStamp: this.message.timeStamp,
-          };
-  
-          // Add the new message to the beginning of the conversation history
-          this.convoHistory = [...(this.convoHistory || []), newMessage];
-  
-          // Clear the message input field
-          this.modelSend.content = '';
-  
-          console.log('Message sent successfully');
-        },
-        error: (error) => {
-          console.error('Error sending message:', error);
-          
-        }
-      });
-    }
-
-    
-
-
-    showContextMenu(event: MouseEvent, index: number) {
-      event.preventDefault();
-      this.editingIndex = index;
-    }
-
-    onMessageEditDone(index: number) {
-      if (this.editingIndex === index) {
-        this.editingIndex = null;
-      }
-    }
-
-    acceptEdit(index: number) {
-      if (this.editingIndex === index) {
-        const editedMessage = this.convoHistory[index];
-        this.modelEdit.messageId = editedMessage.id;
-        this.modelEdit.content = editedMessage.content;
-
-        this.authService.editMessage(this.modelEdit).subscribe({
-          next: (response) => {
-            console.log('Message edited successfully');
-            this.onMessageEditDone(index);
-          },
-          error: (error) => {
-            console.error('Error editing message:', error);
-          }
-        });
-      }
-    }
-
-    declineEdit(index: number) {
-      if (this.editingIndex === index) {
-        this.onMessageEditDone(index);
-        // You can choose to discard any changes made during editing here
-      }
-    }
-
+    });
   }
 
+  sendMessage() {
+    if (this.modelSend.content.trim() === '') {
+      return;
+    }
+
+    this.authService.sendMessage(this.modelSend).subscribe({
+      next: (response) => {
+
+        this.message = response;
+
+        // Create a new message object from the response
+        const newMessage: ConvoHistoryResponse = {
+          id: this.message.messageId,
+          receiverId: this.message.receiverId,
+          senderId: this.message.senderId,
+          content: this.message.content,
+          timeStamp: this.message.timeStamp,
+        };
+
+       
+        this.convoHistory = [...(this.convoHistory || []), newMessage];
+
+        // Clear the message input field
+        this.modelSend.content = '';
+
+        console.log('Message sent successfully');
+      },
+      error: (error) => {
+        console.error('Error sending message:', error);
+
+      }
+    });
+  }
+
+
+
+
+  showContextMenu(event: MouseEvent, id: number) {
+    event.preventDefault();
+    this.editingIndex = id;
+    console.log('yah');
+  }
+
+  onMessageEditDone(id: number) {
+    if (this.editingIndex === id) {
+      this.editingIndex = null;
+      console.log('y');
+    }
+  }
+
+  acceptEdit(id: number) {
+    console.log('acceptEdit function called');
+    const editedMessage = this.convoHistory.find((message) => message.id === id);
+    if (editedMessage && this.editingIndex === id) {
+      this.modelEdit.messageId = editedMessage.id;
+      this.modelEdit.content = this.editedMessageContent;
+      console.log('yah tk');
   
+      this.authService.editMessage(this.modelEdit).subscribe({
+        next: (response) => {
+          // Update the message content in the client-side array
+          editedMessage.content = this.modelEdit.content;
+          console.log('Message edited successfully');
+          this.onMessageEditDone(id);
+        },
+        error: (error) => {
+          console.error('Error editing message:', error);
+        }
+      });
+    }
+  }
+
+  cancelEdit(id: number) {
+    
+    this.editedMessageContent = '';
+    this.editingIndex = null;
+    
+  }
+
+  deleteMessage(id: number) {
+    
+    this.authService.deleteMessage(id).subscribe({
+      next: (response) => {
+        
+        this.convoHistory = this.convoHistory.filter((message) => message.id !== id);
+        console.log('Message deleted successfully');
+        
+        this.cancelEdit(id);
+      },
+      error: (error) => {
+        console.error('Error deleting message:', error);
+      }
+    });
+  }
   
 
+}

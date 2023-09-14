@@ -27,13 +27,14 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: rgb(9, 60, 226);
+    background-color: rgb(0, 12, 7);
+    color: rgb(6, 112, 50);
   }
   .navbar button{
     padding: 20px;
-    background-color: rgb(37, 135, 226);
+    background-color: rgb(2, 63, 7);
     border: none;
-    color: white;
+    color: rgb(212, 221, 213);
   }
   a{
     text-decoration: none;

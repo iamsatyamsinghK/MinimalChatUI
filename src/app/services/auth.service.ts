@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { LoginRequest } from '../models/login-request.model';
 import { BehaviorSubject, Observable } from 'rxjs';
-import {HttpClient} from '@angular/common/http'
+import {HttpClient, HttpParams} from '@angular/common/http'
 import { LoginResponse } from '../models/login-response.model';
 import { environment } from 'src/environments/environment.development';
 import { UserProfile } from '../models/user-profile.model';
@@ -13,6 +13,8 @@ import { ConvoHistoryRequest } from '../models/convo-history-request.model';
 import { SendMessageRequest } from '../models/send-message-request.model';
 import { SendMessageResponse } from '../models/send-message-response.model';
 import { EditMessageRequest } from '../models/edit-message-request.model';
+import { LogRequest } from '../models/log-request.model';
+import { LogResponse } from '../models/log-response.model';
 
 @Injectable({
   providedIn: 'root'
@@ -46,6 +48,19 @@ export class AuthService {
 
   editMessage(request: EditMessageRequest): Observable<any>{
     return this.http.put<any>(`${environment.apiBaseUrl}/api/UserCRUD`, request);
+  }
+
+  deleteMessage(id: number): Observable<any> {
+    return this.http.delete<any>(`${environment.apiBaseUrl}/api/UserCRUD/${id}`);
+  }
+
+  getLogs(request: LogRequest): Observable<LogResponse[]> {
+    // Convert DateTime objects to ISO strings
+    
+      const startTime = request.startTime?.toISOString() || new Date().toISOString();
+      const endTime = request.endTime?.toISOString() || new Date().toISOString();
+
+    return this.http.get<LogResponse[]>(`${environment.apiBaseUrl}/api/Log?EndTime=${encodeURIComponent(endTime)}&StartTime=${encodeURIComponent(startTime)}`);
   }
 
 

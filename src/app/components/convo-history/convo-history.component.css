@@ -6,7 +6,7 @@
   
   .sent-message {
     align-self: flex-end;
-    background-color: #165c04; /* Green background for sent messages */
+    background-color: #1c7a04; /* Green background for sent messages */
     color: white;
     margin: 5px;
     padding: 10px;
@@ -15,7 +15,7 @@
   
   .received-message {
     align-self: flex-start;
-    background-color: rgb(116, 219, 57); /* Gray background for received messages */
+    background-color: rgb(67, 165, 10); /* Gray background for received messages */
     color: white;
     margin: 5px;
     padding: 10px;
@@ -33,7 +33,7 @@
   }
   .message-input button{
     width: 100px;
-    background-color: green;
+    background-color: rgb(1, 36, 1);
     color: white;
     border: none;
     font-size: 17px;

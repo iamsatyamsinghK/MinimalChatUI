@@ -1,15 +1,18 @@
 <div class="message-container">
     <div *ngFor="let item of convoHistory" [ngClass]="{
-        'sent-message': item.senderId === user?.userId,
-        'received-message': item.senderId !== user?.userId
-      }" (contextmenu)="showContextMenu($event, item.id)">
-        <p [contentEditable]="editingIndex === item.id ? true : false" (blur)="onMessageEditDone(item.id)">
+      'sent-message': item.senderId === user?.userId,
+      'received-message': item.senderId !== user?.userId
+    }" (contextmenu)="showContextMenu($event, item.id)">
+        <p>
             {{ item.content }}
         </p>
-        <div *ngIf="editingIndex === item.id">
+        <div *ngIf="item.senderId === user?.userId && editingIndex === item.id">
+            <input [(ngModel)]="editedMessageContent" placeholder="Edit message...">
             <button (click)="acceptEdit(item.id)">Accept</button>
-            <button (click)="declineEdit(item.id)">Decline</button>
-        </div>
+            <button (click)="cancelEdit(item.id)">Cancel</button>
+            <button (click)="deleteMessage(item.id)">Delete</button>
+
+        </div>  
     </div>
 </div>
 
