@@ -1,4 +1,4 @@
-import { Component, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Component, OnChanges, OnDestroy, OnInit, AfterViewInit, ChangeDetectorRef, SimpleChanges, ElementRef, ViewChild, HostListener, Renderer2    } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { ConvoHistoryRequest } from 'src/app/models/convo-history-request.model';
@@ -15,6 +15,10 @@ import { AuthService } from 'src/app/services/auth.service';
   styleUrls: ['./convo-history.component.css']
 })
 export class ConvoHistoryComponent implements OnInit, OnDestroy, OnChanges {
+
+  
+
+  
 
   user?: UserProfile;
 
@@ -35,14 +39,17 @@ export class ConvoHistoryComponent implements OnInit, OnDestroy, OnChanges {
 
   modelSend: SendMessageRequest;
 
-  modelEdit: EditMessageRequest
+  modelEdit: EditMessageRequest;
 
-  constructor(private authService: AuthService, private route: ActivatedRoute) {
+ @ViewChild('messageContainer', { static: false }) messageContainer!: ElementRef;
+
+
+  constructor(private authService: AuthService, private route: ActivatedRoute, private changeDetectorRef: ChangeDetectorRef ) {
     this.model = {
       userId: 0,
       before: new Date(),
-      count: 5000,
-      sort: 'asc'
+      count: 20,
+      sort: 'desc'
     };
     this.modelSend = {
       receiverId: 0,
@@ -70,16 +77,75 @@ export class ConvoHistoryComponent implements OnInit, OnDestroy, OnChanges {
         if (this.receiverId !== null) {
           this.model.userId = parseInt(this.receiverId, 10);
           this.modelSend.receiverId = parseInt(this.receiverId, 10);
-
           this.getConvoHistory();
+          
         }
       }
     });
+    
   }
 
   ngOnDestroy(): void {
     this.paramsSubscription?.unsubscribe();
   }
+
+  // ngAfterViewInit(): void {
+  //   this.scrollMessageContainerToBottom(); // Scroll to the bottom initially
+  // }
+scrollMessageContainerToBottom() {
+  const messageContainer= document.querySelector('.messageContainer')
+  if (messageContainer) {
+   
+    messageContainer.scrollTop = messageContainer.scrollHeight;
+    console.log('scroll')
+  }
+}
+  
+private getConvoHistory(loadMore: boolean = false) {
+  if (loadMore && this.convoHistory.length > 0) {
+    // If loading more, adjust the 'before' timestamp to fetch older messages
+    this.model.before = this.convoHistory[this.convoHistory.length - 1].timeStamp;
+  } else {
+    // If not loading more, set 'before' to the current timestamp initially
+    this.model.before = new Date();
+  }
+
+  this.authService.getConvoHistory(this.model).subscribe({
+    next: (response) => {
+      if (loadMore) {
+        // If loading more, remove the last message (already shown) before appending new messages
+        this.convoHistory.pop();
+        this.convoHistory.push(...response.reverse()); // Reverse the new messages before appending
+      } else {
+        // If not loading more, replace the convoHistory with new messages
+        this.convoHistory = response.reverse(); // Reverse the entire convoHistory
+      }
+
+      // Scroll to the bottom after updating convoHistory
+      setTimeout(() => {
+        this.scrollMessageContainerToBottom();
+      });
+    },
+    error: (error) => {
+      console.error('Error fetching conversation history:', error);
+    },
+  });
+}
+
+
+
+@HostListener('window:scroll', ['$event'])
+onScroll(event: any): void {
+  const messageContainer = this.messageContainer.nativeElement;
+  if (
+    messageContainer.scrollTop === 0 && // Scrolled to the top
+    this.convoHistory.length >= 20 // Ensure there are at least 20 messages
+  ) {
+    this.getConvoHistory(true); // Load more messages
+  }
+}
+
+
 
   ngOnChanges(changes: SimpleChanges): void {
     // Check if the 'receiverId' property has changed
@@ -94,14 +160,8 @@ export class ConvoHistoryComponent implements OnInit, OnDestroy, OnChanges {
       this.getConvoHistory();
     }
   }
+ 
 
-  private getConvoHistory() {
-    this.authService.getConvoHistory(this.model).subscribe({
-      next: (response) => {
-        this.convoHistory = response;
-      }
-    });
-  }
 
   sendMessage() {
     if (this.modelSend.content.trim() === '') {
@@ -123,10 +183,11 @@ export class ConvoHistoryComponent implements OnInit, OnDestroy, OnChanges {
         };
 
        
-        this.convoHistory = [...(this.convoHistory || []), newMessage];
+        this.convoHistory.push(newMessage);
 
         // Clear the message input field
         this.modelSend.content = '';
+        this.scrollMessageContainerToBottom();
 
         console.log('Message sent successfully');
       },

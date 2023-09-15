@@ -1,7 +1,8 @@
-.message-container {
+.messageContainer {
     display: flex;
     flex-direction: column;
-  
+    overflow-y: scroll;
+    height: 68vh;
   }
   
   .sent-message {

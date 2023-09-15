@@ -1,4 +1,4 @@
-<div class="message-container">
+<div class="messageContainer" #messageContainer (scroll)="onScroll($event)" >
     <div *ngFor="let item of convoHistory" [ngClass]="{
       'sent-message': item.senderId === user?.userId,
       'received-message': item.senderId !== user?.userId

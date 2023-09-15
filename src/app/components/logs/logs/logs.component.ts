@@ -10,7 +10,8 @@ import { AuthService } from 'src/app/services/auth.service';
 })
 export class LogsComponent implements OnInit {
   logs: LogResponse[] = [];
-  selectedTimeframe: string = '';
+  
+  selectedTimeframe: string = 'last5mins';
   showColumns = {
     ipAddress: true,
     username: true,
@@ -20,6 +21,7 @@ export class LogsComponent implements OnInit {
   };
 
   request: LogRequest;
+  
 
   constructor(private authService: AuthService) {
     this.request = {
@@ -27,15 +29,17 @@ export class LogsComponent implements OnInit {
       endTime: new Date(),
     };
   }
+  
 
   ngOnInit(): void {
-    // this.fetchLogs();
+     this.fetchLogs();
   }
 
   fetchLogs(): void {
     // Determine the time range based on the selectedTimeframe
     const currentTime = new Date();
-    let startTime = new Date() ;
+    let startTime = new Date();
+    let endTime = new Date(); // Declare endTime here to make it accessible outside the if block
 
     switch (this.selectedTimeframe) {
       case 'last5mins':
@@ -45,18 +49,19 @@ export class LogsComponent implements OnInit {
         startTime = new Date(currentTime.getTime() - 10 * 60 * 1000);
         break;
       case 'last30mins':
-        startTime = new Date(currentTime.getTime() - 30 * 60 * 1000);
+        startTime = new Date( currentTime.getTime() - 30 * 60 * 1000);
         break;
-      default:
-        // Custom time range
-        // Implement the logic for the time picker component
-        // Set the startTime and endTime accordingly
-        break;
+    }
+
+    if (this.selectedTimeframe === 'custom' && this.request.startTime && this.request.endTime) {
+        this.logs =[];
+      startTime = this.request.startTime;
+      endTime = this.request.endTime; // Assign the value to endTime here
     }
 
     // Set the request object's startTime and endTime
     this.request.startTime = startTime;
-    this.request.endTime = currentTime;
+    this.request.endTime = endTime; // Use the value of endTime
 
     // Call the log service to get logs based on the request
     this.authService.getLogs(this.request).subscribe((logs) => {
@@ -64,5 +69,26 @@ export class LogsComponent implements OnInit {
     });
   }
 
-  
+  // Function to handle custom time change
+  onCustomTimeChange(): void {
+    this.request.startTime = new Date(this.request.startTime);
+    this.request.endTime = new Date(this.request.endTime);
+
+    if (this.request.startTime && this.request.endTime) {
+      this.fetchLogs();
+    } else {
+      
+    }
+  }
+
+  onTimeframeChange(): void {
+    // Clear logs when the selected timeframe changes to "Custom"
+    
+      this.logs = [];
+    
+
+    // Fetch logs based on the new timeframe
+    this.fetchLogs();
+  }
+
 }

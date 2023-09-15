@@ -16,7 +16,7 @@
     padding: 20px;
     width: 80%; 
     height: 68vh;
-    overflow-y: scroll;
+    /* overflow-y: scroll; */
   }
   .user-chat{
     display: flex;
