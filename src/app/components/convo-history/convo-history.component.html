@@ -1,1 +1,23 @@
-<p>convo-history works!</p>
+<div class="messageContainer" #messageContainer (scroll)="onScroll($event)">
+    <div *ngFor="let item of convoHistory" [ngClass]="{
+        'sent-message': item.senderId === user?.userId,
+        'received-message': item.senderId !== user?.userId
+      }" (contextmenu)="showContextMenu($event, item.id)">
+      <p>
+        {{ item.content }}
+      </p>
+      <div *ngIf="item.senderId === user?.userId && editingIndex === item.id">
+        <input [(ngModel)]="editedMessageContent" placeholder="Edit message...">
+        <button (click)="acceptEdit(item.id)">Accept</button>
+        <button (click)="cancelEdit(item.id)">Cancel</button>
+        <button (click)="deleteMessage(item.id)">Delete</button>
+      </div>
+    </div>
+  </div>
+  
+
+
+<div class="message-input">
+    <textarea [(ngModel)]="modelSend.content" placeholder="Type your message..." rows="4" cols="120"></textarea>
+    <button (click)="sendMessage()">Send</button>
+</div>

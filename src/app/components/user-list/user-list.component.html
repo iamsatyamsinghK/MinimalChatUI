@@ -1,7 +1,8 @@
 <div class="container">
     <div class="navbar">
-        <h2>ChatZ <button class="navbar-button" (click)="onLogout()">Logout</button></h2>
-        <span>Welcome, {{ user?.name }}</span>
+        <h1>ChatZ </h1>
+        <h2>Welcome, {{ user?.name }}</h2>
+        <button class="navbar-button" (click)="onLogout()">Logout</button>
     </div>
 
 
@@ -12,9 +13,8 @@
                 <table>
                     <thead>
                         <tr *ngFor="let users of userList">
-                            <th>
+                            <th class="tab">
                                 <a [routerLink]="['convo', users.userId]">{{ users.name }}</a>
-
                             </th>
                         </tr>
                     </thead>

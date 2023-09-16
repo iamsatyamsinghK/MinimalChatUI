@@ -1,18 +1,50 @@
 
   .content {
-    
+    background-color: rgb(33, 172, 177);
     padding: 20px;
-    width: 10% 
+    width: 15%;
+    display: flex;
+    justify-content: center;
+    overflow-y: scroll;
+    /* align-items: center; */
+
   }
   
   .router-outlet {
    
-    background-color: #f0f0f0; 
+    background-color: #233a34; 
     padding: 20px;
     width: 80%; 
+    height: 68vh;
+    /* overflow-y: scroll; */
   }
   .user-chat{
     display: flex;
-     justify-content: space-between 
+    
+     
+  }
+  .navbar{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgb(0, 12, 7);
+    color: rgb(6, 112, 50);
+  }
+  .navbar button{
+    padding: 20px;
+    background-color: rgb(2, 63, 7);
+    border: none;
+    color: rgb(212, 221, 213);
+  }
+  a{
+    text-decoration: none;
+    font-size: 20px;
+    color: white;
+  }
+  .tab{
+    background-color: rgb(20, 208, 214);
+    width: 300px;
+    padding: 10px;
+    
   }
   

@@ -1,0 +1,38 @@
+<div class="container">
+  <h2>Request Logs</h2>
+  <div class="form-group">
+    <label for="timeframe">Select Timeframe:</label>
+    <select id="timeframe" [(ngModel)]="selectedTimeframe" (change)="onTimeframeChange()">
+      <option value="last5mins">Last 5 mins</option>
+      <option value="last10mins">Last 10 mins</option>
+      <option value="last30mins">Last 30 mins</option>
+      <option value="custom">Custom</option>
+    </select>
+  </div>
+  <div *ngIf="selectedTimeframe === 'custom'" class="form-group">
+    <label for="customStartTime">Custom Start Time:</label>
+    <input id="customStartTime" type="datetime-local" [(ngModel)]="request.startTime " (change)="onCustomTimeChange()" />
+    <label for="customEndTime">Custom End Time:</label>
+    <input id="customEndTime" type="datetime-local" [(ngModel)]="request.endTime" (change)="onCustomTimeChange()" />
+  </div>
+  <table class="table">
+    <thead>
+      <tr>
+        <th *ngIf="showColumns.ipAddress">IP Address</th>
+        <th *ngIf="showColumns.username">Username</th>
+        <th *ngIf="showColumns.requestPath">Request Path</th>
+        <th *ngIf="showColumns.requestBody">Request Body</th>
+        <th *ngIf="showColumns.timestamp">Timestamp</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let log of logs">
+        <td *ngIf="showColumns.ipAddress">{{ log.ipAddress }}</td>
+        <td *ngIf="showColumns.username">{{ log.username }}</td>
+        <td *ngIf="showColumns.requestPath">{{ log.requestPath }}</td>
+        <td *ngIf="showColumns.requestBody">{{ log.requestBody }}</td>
+        <td *ngIf="showColumns.timestamp">{{ log.timestamp | date: 'medium' }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
