@@ -3,5 +3,5 @@ export interface ConvoHistoryResponse{
     senderId: number;
     receiverId: number;
     content: string;
-    timeStamp: Date;
+    timestamp: Date;
 }

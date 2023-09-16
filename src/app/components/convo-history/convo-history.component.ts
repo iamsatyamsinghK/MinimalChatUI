@@ -1,4 +1,4 @@
-import { Component, OnChanges, OnDestroy, OnInit, AfterViewInit, ChangeDetectorRef, SimpleChanges, ElementRef, ViewChild, HostListener, Renderer2    } from '@angular/core';
+import { Component, OnChanges, OnDestroy, OnInit, AfterViewInit, ChangeDetectorRef, SimpleChanges, ElementRef, ViewChild, HostListener, Renderer2 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { ConvoHistoryRequest } from 'src/app/models/convo-history-request.model';
@@ -15,10 +15,6 @@ import { AuthService } from 'src/app/services/auth.service';
   styleUrls: ['./convo-history.component.css']
 })
 export class ConvoHistoryComponent implements OnInit, OnDestroy, OnChanges {
-
-  
-
-  
 
   user?: UserProfile;
 
@@ -40,14 +36,16 @@ export class ConvoHistoryComponent implements OnInit, OnDestroy, OnChanges {
   modelSend: SendMessageRequest;
 
   modelEdit: EditMessageRequest;
+  currentPosition: number = 0;
 
- @ViewChild('messageContainer', { static: false }) messageContainer!: ElementRef;
+
+  @ViewChild('messageContainer', { static: false }) messageContainer!: ElementRef;
 
 
-  constructor(private authService: AuthService, private route: ActivatedRoute, private changeDetectorRef: ChangeDetectorRef ) {
+  constructor(private authService: AuthService, private route: ActivatedRoute, private changeDetectorRef: ChangeDetectorRef) {
     this.model = {
       userId: 0,
-      before: new Date(),
+      before: null,
       count: 20,
       sort: 'desc'
     };
@@ -78,72 +76,91 @@ export class ConvoHistoryComponent implements OnInit, OnDestroy, OnChanges {
           this.model.userId = parseInt(this.receiverId, 10);
           this.modelSend.receiverId = parseInt(this.receiverId, 10);
           this.getConvoHistory();
-          
+
         }
       }
     });
-    
+
   }
 
   ngOnDestroy(): void {
     this.paramsSubscription?.unsubscribe();
   }
 
-  // ngAfterViewInit(): void {
-  //   this.scrollMessageContainerToBottom(); // Scroll to the bottom initially
-  // }
-scrollMessageContainerToBottom() {
-  const messageContainer= document.querySelector('.messageContainer')
-  if (messageContainer) {
-   
-    messageContainer.scrollTop = messageContainer.scrollHeight;
-    console.log('scroll')
-  }
-}
-  
-private getConvoHistory(loadMore: boolean = false) {
-  if (loadMore && this.convoHistory.length > 0) {
-    // If loading more, adjust the 'before' timestamp to fetch older messages
-    this.model.before = this.convoHistory[this.convoHistory.length - 1].timeStamp;
-  } else {
-    // If not loading more, set 'before' to the current timestamp initially
-    this.model.before = new Date();
+  scrollMessageContainerToBottom() {
+    const messageContainer = document.querySelector('.messageContainer')
+    if (messageContainer) {
+
+      messageContainer.scrollTop = messageContainer.scrollHeight;
+      console.log('scroll')
+    }
   }
 
-  this.authService.getConvoHistory(this.model).subscribe({
-    next: (response) => {
-      if (loadMore) {
-        // If loading more, remove the last message (already shown) before appending new messages
-        this.convoHistory.pop();
-        this.convoHistory.push(...response.reverse()); // Reverse the new messages before appending
-      } else {
-        // If not loading more, replace the convoHistory with new messages
-        this.convoHistory = response.reverse(); // Reverse the entire convoHistory
-      }
+  private getConvoHistory(loadMore: boolean = false) {
 
-      // Scroll to the bottom after updating convoHistory
-      setTimeout(() => {
-        this.scrollMessageContainerToBottom();
+    
+    if (loadMore && this.convoHistory.length > 0) {
+
+
+      this.model.before = (this.convoHistory[0].timestamp);
+      this.authService.getConvoHistory(this.model).subscribe({
+        next: (response) => {
+
+
+          const olderMessages = response.reverse()
+
+          this.convoHistory = [...olderMessages, ...this.convoHistory]
+
+          this.currentPosition += response.length;
+          ;
+        },
+        error: (error) => {
+          console.error('Error fetching conversation history:', error);
+        }
       });
-    },
-    error: (error) => {
-      console.error('Error fetching conversation history:', error);
-    },
-  });
-}
+      console.log("sdgrhdrthth", this.convoHistory[0].timestamp)
+    } 
 
+    
+    else {
 
+      this.model.before = null;
 
-@HostListener('window:scroll', ['$event'])
-onScroll(event: any): void {
-  const messageContainer = this.messageContainer.nativeElement;
-  if (
-    messageContainer.scrollTop === 0 && // Scrolled to the top
-    this.convoHistory.length >= 20 // Ensure there are at least 20 messages
-  ) {
-    this.getConvoHistory(true); // Load more messages
+      this.authService.getConvoHistory(this.model).subscribe({
+        next: (response) => {
+
+          
+
+          this.convoHistory = response.reverse();
+          this.currentPosition = response.length;
+
+          setTimeout(() => {
+            this.scrollMessageContainerToBottom();
+          });
+        },
+        error: (error) => {
+          console.error('Error fetching conversation history:', error);
+        },
+      });
+    }
   }
-}
+
+
+
+
+
+  @HostListener('window:scroll', ['$event'])
+  onScroll(event: any): void {
+    const messageContainer = this.messageContainer.nativeElement;
+    if (
+      messageContainer.scrollTop === 0 &&
+
+      this.currentPosition > 0
+    ) {
+      this.getConvoHistory(true); // Load more messages
+    }
+  }
+
 
 
 
@@ -160,7 +177,7 @@ onScroll(event: any): void {
       this.getConvoHistory();
     }
   }
- 
+
 
 
   sendMessage() {
@@ -179,10 +196,10 @@ onScroll(event: any): void {
           receiverId: this.message.receiverId,
           senderId: this.message.senderId,
           content: this.message.content,
-          timeStamp: this.message.timeStamp,
+          timestamp: this.message.timeStamp,
         };
 
-       
+
         this.convoHistory.push(newMessage);
 
         // Clear the message input field
@@ -221,7 +238,7 @@ onScroll(event: any): void {
       this.modelEdit.messageId = editedMessage.id;
       this.modelEdit.content = this.editedMessageContent;
       console.log('yah tk');
-  
+
       this.authService.editMessage(this.modelEdit).subscribe({
         next: (response) => {
           // Update the message content in the client-side array
@@ -237,20 +254,20 @@ onScroll(event: any): void {
   }
 
   cancelEdit(id: number) {
-    
+
     this.editedMessageContent = '';
     this.editingIndex = null;
-    
+
   }
 
   deleteMessage(id: number) {
-    
+
     this.authService.deleteMessage(id).subscribe({
       next: (response) => {
-        
+
         this.convoHistory = this.convoHistory.filter((message) => message.id !== id);
         console.log('Message deleted successfully');
-        
+
         this.cancelEdit(id);
       },
       error: (error) => {
@@ -258,6 +275,6 @@ onScroll(event: any): void {
       }
     });
   }
-  
+
 
 }

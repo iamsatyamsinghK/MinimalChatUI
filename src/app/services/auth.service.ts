@@ -38,9 +38,16 @@ export class AuthService {
   }
 
   getConvoHistory(request: ConvoHistoryRequest): Observable<ConvoHistoryResponse[]>{
-    const formattedDate = request.before?.toISOString() || new Date().toISOString();
-    return this.http.get<ConvoHistoryResponse[]>(`${environment.apiBaseUrl}/api/UserCRUD/messages?UserId=${request.userId}&Before=${encodeURIComponent(formattedDate)}&Count=${request.count}&Sort=${request.sort}`)
+    //const formattedDate = request.before?.toISOString() || new Date().toISOString();
+    
+    if(request.before != null){
+
+      return this.http.get<ConvoHistoryResponse[]>(`${environment.apiBaseUrl}/api/UserCRUD/messages?UserId=${request.userId}&Before=${request.before}&Count=${request.count}&Sort=${request.sort}`)
+    }else{
+      return this.http.get<ConvoHistoryResponse[]>(`${environment.apiBaseUrl}/api/UserCRUD/messages?UserId=${request.userId}&Count=${request.count}&Sort=${request.sort}`)
+    }
   }
+  
 
   sendMessage(request: SendMessageRequest): Observable<SendMessageResponse>{
     return this.http.post<SendMessageResponse>(`${environment.apiBaseUrl}/api/UserCRUD`, request);
