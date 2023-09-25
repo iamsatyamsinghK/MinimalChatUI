@@ -1,31 +1,47 @@
 <div class="container">
     <div class="navbar">
-        <h1>ChatZ </h1>
+        <h1>ChatZ</h1>
         <h2>Welcome, {{ user?.name }}</h2>
         <button class="navbar-button" (click)="onLogout()">Logout</button>
     </div>
 
-
+    <div class="search-conversation">
+        <input type="text" [(ngModel)]="searchString" placeholder="Search Conversation">
+        <button (click)="searchConversation(); clearSearchInput()">Search</button>
+      </div>
+      
     <div class="user-chat">
 
-        <div class="content">
+        <!-- User List and Conversation -->
+        <div class="content" *ngIf="!showSearchResults">
             <span *ngIf="userList">
                 <table>
                     <thead>
-                        <tr *ngFor="let users of userList">
+                        <tr *ngFor="let user of userList">
                             <th class="tab">
-                                <a [routerLink]="['convo', users.userId]">{{ users.name }}</a>
+                                <a [routerLink]="['convo', user.userId]">{{ user.name }}</a>
                             </th>
                         </tr>
                     </thead>
                 </table>
-
             </span>
+        </div>
+
+        <!-- Search Results -->
+        <div class="content1" *ngIf="showSearchResults">
+            <div class="close">
+                <i class="fa-solid fa-2x fa-x" (click)="closeSearchResults()"></i>
+            </div>
+            <div>
+                <li *ngFor="let result of convoHistory" [ngClass]="{
+                    'sent-message': result.senderId === user?.userId,
+                    'received-message': result.senderId !== user?.userId
+                  }">{{ result.content }}</li>
+            </div>
         </div>
 
         <div class="router-outlet">
             <router-outlet></router-outlet>
         </div>
-
     </div>
 </div>

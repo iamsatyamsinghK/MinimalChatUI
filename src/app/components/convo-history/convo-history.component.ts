@@ -8,6 +8,9 @@ import { SendMessageRequest } from 'src/app/models/send-message-request.model';
 import { SendMessageResponse } from 'src/app/models/send-message-response.model';
 import { UserProfile } from 'src/app/models/user-profile.model';
 import { AuthService } from 'src/app/services/auth.service';
+import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
+import * as signalR from "@microsoft/signalr";
+
 
 @Component({
   selector: 'app-convo-history',
@@ -23,6 +26,8 @@ export class ConvoHistoryComponent implements OnInit, OnDestroy, OnChanges {
   editedMessageContent: string = '';
 
   convoHistory: ConvoHistoryResponse[] = [];
+
+  private connection!: HubConnection;
 
 
   message?: SendMessageResponse;
@@ -41,22 +46,24 @@ export class ConvoHistoryComponent implements OnInit, OnDestroy, OnChanges {
 
   @ViewChild('messageContainer', { static: false }) messageContainer!: ElementRef;
 
+  
 
   constructor(private authService: AuthService, private route: ActivatedRoute, private changeDetectorRef: ChangeDetectorRef) {
     this.model = {
-      userId: 0,
+      userId: '',
       before: null,
       count: 20,
       sort: 'desc'
     };
     this.modelSend = {
-      receiverId: 0,
+      receiverId: '',
       content: ''
     };
     this.modelEdit = {
       messageId: 0,
       content: ''
     };
+
   }
 
   ngOnInit(): void {
@@ -67,20 +74,46 @@ export class ConvoHistoryComponent implements OnInit, OnDestroy, OnChanges {
       }
     });
 
+    const localToken = localStorage.getItem('token');
+    this.connection = new HubConnectionBuilder()
+
+      .withUrl(`https://localhost:7198/chat/hub?access_token=${localToken}`)
+      .build();
+
+    this.connection.start()
+      .then(() =>
+        console.log('conn start'))
+        
+      .catch(error => {
+        console.log(error)
+      });
+
+    
+      this.connection.on('BroadCast', (message) => {
+        console.log("Inside conncection")
+      message.id = message.messageID;
+      console.log(message.messageID);
+      console.log("Before Push:", this.convoHistory);
+      this.convoHistory.push(message);
+      console.log("after Push:", this.convoHistory);
+      console.log(message.id);
+      console.log(this.convoHistory);
+      this.getConvoHistory();
+    })
+
     this.user = this.authService.getUser();
 
     this.route.paramMap.subscribe({
       next: (params) => {
         this.receiverId = params.get('id');
         if (this.receiverId !== null) {
-          this.model.userId = parseInt(this.receiverId, 10);
-          this.modelSend.receiverId = parseInt(this.receiverId, 10);
+          this.model.userId = this.receiverId;
+          this.modelSend.receiverId = this.receiverId;
           this.getConvoHistory();
 
         }
       }
     });
-
   }
 
   ngOnDestroy(): void {
@@ -98,7 +131,7 @@ export class ConvoHistoryComponent implements OnInit, OnDestroy, OnChanges {
 
   private getConvoHistory(loadMore: boolean = false) {
 
-    
+
     if (loadMore && this.convoHistory.length > 0) {
 
 
@@ -119,9 +152,9 @@ export class ConvoHistoryComponent implements OnInit, OnDestroy, OnChanges {
         }
       });
       console.log("sdgrhdrthth", this.convoHistory[0].timestamp)
-    } 
+    }
 
-    
+
     else {
 
       this.model.before = null;
@@ -129,7 +162,7 @@ export class ConvoHistoryComponent implements OnInit, OnDestroy, OnChanges {
       this.authService.getConvoHistory(this.model).subscribe({
         next: (response) => {
 
-          
+
 
           this.convoHistory = response.reverse();
           this.currentPosition = response.length;
@@ -157,6 +190,7 @@ export class ConvoHistoryComponent implements OnInit, OnDestroy, OnChanges {
 
       this.currentPosition > 0
     ) {
+      console.log("scrolling");
       this.getConvoHistory(true); // Load more messages
     }
   }
@@ -171,7 +205,7 @@ export class ConvoHistoryComponent implements OnInit, OnDestroy, OnChanges {
       const newReceiverId = changes['receiverId'].currentValue;
 
       // Update the 'model.userId' with the new 'receiverId' value
-      this.model.userId = parseInt(newReceiverId, 10);
+      this.model.userId = newReceiverId;
 
       // Call the API to get updated messages
       this.getConvoHistory();
@@ -184,37 +218,36 @@ export class ConvoHistoryComponent implements OnInit, OnDestroy, OnChanges {
     if (this.modelSend.content.trim() === '') {
       return;
     }
-
-    this.authService.sendMessage(this.modelSend).subscribe({
-      next: (response) => {
-
-        this.message = response;
-
-        // Create a new message object from the response
-        const newMessage: ConvoHistoryResponse = {
-          id: this.message.messageId,
-          receiverId: this.message.receiverId,
-          senderId: this.message.senderId,
-          content: this.message.content,
-          timestamp: this.message.timeStamp,
-        };
-
-
-        this.convoHistory.push(newMessage);
-
-        // Clear the message input field
-        this.modelSend.content = '';
-        this.scrollMessageContainerToBottom();
-
-        console.log('Message sent successfully');
-      },
-      error: (error) => {
-        console.error('Error sending message:', error);
-
-      }
-    });
-  }
-
+  
+   
+      // Send the message via API request
+      this.authService.sendMessage(this.modelSend).subscribe({
+        next: (response) => {
+          this.message = response;
+          // Create a new message object from the response
+          const newMessage: ConvoHistoryResponse = {
+            id: this.message.messageId,
+            receiverId: this.message.receiverId,
+            senderId: this.message.senderId,
+            content: this.message.content,
+            timestamp: this.message.timeStamp,
+          };
+  
+          this.convoHistory.push(newMessage);
+  
+          // Clear the message input field
+          this.modelSend.content = '';
+          this.scrollMessageContainerToBottom();
+  
+          console.log('Message sent successfully via API');
+        },
+        error: (error) => {
+          console.error('Error sending message via API:', error);
+        },
+      });
+    }
+  
+  
 
 
 

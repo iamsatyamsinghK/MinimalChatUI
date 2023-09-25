@@ -11,6 +11,8 @@ import { UserListComponent } from './components/user-list/user-list.component';
 import { AuthInterceptor } from './interceptor/auth.interceptor';
 import { RegisterComponent } from './components/register/register.component';
 import { LogsComponent } from './components/logs/logs/logs.component';
+import{MaterialModule} from './material/material.module';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 
 @NgModule({
@@ -28,6 +30,8 @@ import { LogsComponent } from './components/logs/logs/logs.component';
     AppRoutingModule,
     FormsModule,
     HttpClientModule,
+    MaterialModule,
+    BrowserAnimationsModule
   ],
   providers: [
     {
