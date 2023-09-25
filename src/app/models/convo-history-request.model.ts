@@ -1,5 +1,5 @@
 export interface ConvoHistoryRequest{
-    userId: number;
+    userId: string;
     before?: Date|null;
     count: number;
     sort: string;

@@ -1,4 +1,7 @@
-
+*{
+ 
+font-family: 'Roboto', sans-serif;
+}
   .content {
     background-color: rgb(33, 172, 177);
     padding: 20px;
@@ -9,6 +12,21 @@
     /* align-items: center; */
 
   }
+  .content1 {
+    background-color: rgb(218, 224, 224);
+    padding: 20px;
+    width: 15%;
+    overflow-y: scroll; 
+    /* display: flex;
+    justify-content: center;
+    /* align-items: center; */
+
+  }
+  .close{
+display: flex;
+justify-content: right;
+  }
+
   
   .router-outlet {
    
@@ -30,6 +48,10 @@
     background-color: rgb(0, 12, 7);
     color: rgb(6, 112, 50);
   }
+  h1, h2{
+    font-size: 40px;
+    font-weight: 1000;
+  }
   .navbar button{
     padding: 20px;
     background-color: rgb(2, 63, 7);
@@ -42,9 +64,43 @@
     color: white;
   }
   .tab{
-    background-color: rgb(20, 208, 214);
+    background-color: rgb(38, 123, 145);
     width: 300px;
     padding: 10px;
     
   }
+  li{
+    list-style: none;
+
+  }
+  .search-conversation{
+    padding:10px;
+    background-color: #14221e;
+    display: flex;
+    gap: 10px;
+  }
+  .search-conversation input{
+    padding: 7px;
+  }
+  .search-conversation button{
+    color: green;
+    background-color: white;
+
+  }
+  .sent-message {
+    align-self: flex-end;
+    background-color: #1c7a04; /* Green background for sent messages */
+    color: white;
+    margin: 5px;
+    padding: 10px;
+    border-radius: 10px;
+  }
   
+  .received-message {
+    align-self: flex-start;
+    background-color: rgb(67, 165, 10); /* Gray background for received messages */
+    color: white;
+    margin: 5px;
+    padding: 10px;
+    border-radius: 10px;
+  }

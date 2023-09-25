@@ -1,4 +1,4 @@
 export interface SendMessageRequest{
-    receiverId: number;
+    receiverId: string;
     content: string; 
 }

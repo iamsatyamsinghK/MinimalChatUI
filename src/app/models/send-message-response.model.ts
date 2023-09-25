@@ -1,7 +1,7 @@
 export interface SendMessageResponse{
     messageId: number;
-    senderId: number;
-    receiverId: number;
+    senderId: string;
+    receiverId: string;
     content: string;
     timeStamp: Date;
 }
