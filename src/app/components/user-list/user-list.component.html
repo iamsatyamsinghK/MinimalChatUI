@@ -19,6 +19,7 @@
                     <thead>
                         <tr *ngFor="let user of userList">
                             <th class="tab">
+                                <input type="checkbox" [(ngModel)]="user.selected" (change)="toggleUserSelection(user)">
                                 <a [routerLink]="['convo', user.userId]">{{ user.name }}</a>
                             </th>
                         </tr>

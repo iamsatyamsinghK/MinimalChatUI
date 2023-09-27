@@ -16,6 +16,7 @@ import { EditMessageRequest } from '../models/edit-message-request.model';
 import { LogRequest } from '../models/log-request.model';
 import { LogResponse } from '../models/log-response.model';
 import * as signalR from "@microsoft/signalr";
+import { SendMessageRequestCollectiveDto } from '../models/SendMessageRequestCollectiveDto.model';
 
 
 @Injectable({
@@ -80,7 +81,10 @@ export class AuthService {
 
 
   sendMessage(request: SendMessageRequest): Observable<SendMessageResponse> {
-    return this.http.post<SendMessageResponse>(`${environment.apiBaseUrl}/api/UserCRUD`, request);
+    return this.http.post<SendMessageResponse>(`${environment.apiBaseUrl}/api/UserCRUD/messages`, request);
+  }
+  sendCollectiveMessage(request: SendMessageRequestCollectiveDto): Observable<any> {
+    return this.http.post<any>(`${environment.apiBaseUrl}/api/UserCRUD`, request);
   }
 
   editMessage(request: EditMessageRequest): Observable<any> {
