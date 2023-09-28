@@ -1,8 +1,11 @@
 import { Component, NgZone, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { SendMessageRequestCollectiveDto } from 'src/app/models/SendMessageRequestCollectiveDto.model';
 import { ConvoHistoryResponse } from 'src/app/models/convo-history-response.model';
 import { UserProfile } from 'src/app/models/user-profile.model';
 import { AuthService } from 'src/app/services/auth.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+
 
 @Component({
   selector: 'app-user-list',
@@ -15,11 +18,13 @@ export class UserListComponent implements OnInit {
   userList?: UserProfile[];
   searchString: string = ''; // Initialize search string
   showSearchResults: boolean = false; // Flag to show/hide search results
+  
 
   convoHistory: ConvoHistoryResponse[] = [];
   selectedUsers: UserProfile[] = [];
+  collectiveMessageContent: string = '';
 
-  constructor(private authService: AuthService, private router: Router, private _ngZone: NgZone) { }
+  constructor(private authService: AuthService, private router: Router, private _ngZone: NgZone,private snackBar: MatSnackBar) { }
 
   ngOnInit(): void {
     this.authService.user().subscribe({
@@ -41,20 +46,73 @@ export class UserListComponent implements OnInit {
 
   // Toggle user selection
   toggleUserSelection(user: UserProfile): void {
-    user.selected = !user.selected;
-
+    
+     
     // Add or remove from selected users array
     if (user.selected) {
       this.selectedUsers.push(user);
+      console.log('b')
     } else {
+      console.log('c')
       const index = this.selectedUsers.findIndex((u) => u.userId === user.userId);
       if (index !== -1) {
         this.selectedUsers.splice(index, 1);
       }
     }
   }
+  // Send a collective message to selected users
+  sendMessageToSelectedUsers(): void {
+    // Check if any users are selected
+    if (this.selectedUsers.length === 0 || !this.collectiveMessageContent.trim()) {
+      console.log('no user')
+      return;
+    }
 
-  
+    // Extract receiver IDs from selected users
+    const receiverIds = this.selectedUsers
+      .filter((user) => user.userId !== undefined)
+      .map((user) => user.userId!);
+
+    // Create a SendMessageRequestCollectiveDto object
+    const sendMessageDto: SendMessageRequestCollectiveDto = {
+      receiverIds,
+      content: this.collectiveMessageContent
+    };
+
+    // Call a method to send the message using the DTO (You can implement this in your service)
+    this.authService.sendCollectiveMessage(sendMessageDto).subscribe({
+      next: (response) => {
+        // Handle the response, e.g., show a success message
+        console.log('Message sent successfully to selected users:', response);
+
+        this.showNotification('Message sent successfully to selected users');
+
+        // Clear the message input
+        this.collectiveMessageContent = '';
+
+        // Deselect all users
+        this.selectedUsers.forEach((user) => {
+          user.selected = false;
+        });
+
+        // Clear the selectedUsers array
+        this.selectedUsers = [];
+      },
+      
+      error: (error) => {
+        console.error('Error sending collective message:', error);
+      }
+    });
+  }
+
+
+  private showNotification(message: string): void {
+    this.snackBar.open(message, 'Close', {
+      duration: 3000, // Display duration in milliseconds
+      horizontalPosition: 'end',
+      verticalPosition: 'top'
+    });
+  }
 
   onLogout() {
     this.authService.signOutExternal();
