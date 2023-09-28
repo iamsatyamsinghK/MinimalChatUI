@@ -8,8 +8,8 @@
     <div class="search-conversation">
         <input type="text" [(ngModel)]="searchString" placeholder="Search Conversation">
         <button (click)="searchConversation(); clearSearchInput()">Search</button>
-      </div>
-      
+    </div>
+
     <div class="user-chat">
 
         <!-- User List and Conversation -->
@@ -19,8 +19,11 @@
                     <thead>
                         <tr *ngFor="let user of userList">
                             <th class="tab">
-                                <input type="checkbox" [(ngModel)]="user.selected" (change)="toggleUserSelection(user)">
-                                <a [routerLink]="['convo', user.userId]">{{ user.name }}</a>
+                                <label>
+                                    <input type="checkbox" [(ngModel)]="user.selected"
+                                        (change)="toggleUserSelection(user)">
+                                    <a [routerLink]="['convo', user.userId]" >{{ user.name }}</a>
+                                </label>
                             </th>
                         </tr>
                     </thead>
@@ -45,4 +48,9 @@
             <router-outlet></router-outlet>
         </div>
     </div>
+    <div class="message-input" *ngIf="selectedUsers.length > 0">
+        <input [(ngModel)]="collectiveMessageContent" placeholder="Type your message..." >
+        <button (click)="sendMessageToSelectedUsers()">Send Collective Message</button>
+    </div>
+
 </div>
