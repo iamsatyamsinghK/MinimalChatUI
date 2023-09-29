@@ -28,9 +28,11 @@
     bottom: 0;
     display: flex;
     gap: 20px;
-  }
-  .message-input textarea{
     width: 100%;
+  }
+  .message-input input{
+    width: 65%;
+    padding: 10px;
   }
   .message-input button{
     width: 100px;
