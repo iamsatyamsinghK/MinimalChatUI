@@ -1,0 +1,16 @@
+<div *ngIf="messages.length > 0" class="messageContainer">
+    <div *ngFor="let message of messages" [ngClass]="{
+      'sent-message': message.senderId === user?.userId,
+      'received-message': message.senderId !== user?.userId
+    }">
+        {{ message.content }}
+    </div>
+</div>
+
+<div *ngIf="messages.length === 0">
+    <p>No messages available for this group.</p>
+</div>
+<div class="message-input">
+    <input [(ngModel)]="messageContent" placeholder="Type your message...">
+    <button (click)="sendMessage()">Send</button>
+</div>

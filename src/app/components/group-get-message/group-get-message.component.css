@@ -1,0 +1,24 @@
+.messageContainer {
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
+    height: 68vh;
+  }
+  
+  .sent-message {
+    align-self: flex-end;
+    background-color: #1c7a04; /* Green background for sent messages */
+    color: white;
+    margin: 5px;
+    padding: 10px;
+    border-radius: 10px;
+  }
+  
+  .received-message {
+    align-self: flex-start;
+    background-color: rgb(67, 165, 10); /* Gray background for received messages */
+    color: white;
+    margin: 5px;
+    padding: 10px;
+    border-radius: 10px;
+  }

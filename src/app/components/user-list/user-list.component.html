@@ -8,6 +8,8 @@
     <div class="search-conversation">
         <input type="text" [(ngModel)]="searchString" placeholder="Search Conversation">
         <button (click)="searchConversation(); clearSearchInput()">Search</button>
+        <a [routerLink]="['group-send']">+ </a>
+
     </div>
 
     <div class="user-chat">
@@ -17,19 +19,32 @@
             <span *ngIf="userList">
                 <table>
                     <thead>
-                        <tr *ngFor="let user of userList">
+                        <tr *ngFor="let user of userList; let isLast = last">
                             <th class="tab">
                                 <label>
                                     <input type="checkbox" [(ngModel)]="user.selected"
                                         (change)="toggleUserSelection(user)">
-                                    <a [routerLink]="['convo', user.userId]" >{{ user.name }}</a>
+                                    <a [routerLink]="['convo', user.userId]">{{ user.name }}</a>
                                 </label>
                             </th>
                         </tr>
                     </thead>
                 </table>
+                
+
+                <div class="groups">
+                    <br>
+                    <div *ngFor="let group of groups" class="group-badge">
+                      <button [routerLink]="['group-messages', group.chatId]" class="group-button">
+                        {{ group.receivers.slice(0, 2).join(', ') }}
+                        <span *ngIf="group.receivers.length > 2">...</span>
+                      </button>
+                    </div>
+                </div>
             </span>
         </div>
+                  
+
 
         <!-- Search Results -->
         <div class="content1" *ngIf="showSearchResults">
@@ -49,7 +64,7 @@
         </div>
     </div>
     <div class="message-input" *ngIf="selectedUsers.length > 0">
-        <input [(ngModel)]="collectiveMessageContent" placeholder="Type your message..." >
+        <input [(ngModel)]="collectiveMessageContent" placeholder="Type your message...">
         <button (click)="sendMessageToSelectedUsers()">Send Collective Message</button>
     </div>
 

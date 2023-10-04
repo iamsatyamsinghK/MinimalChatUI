@@ -5,6 +5,7 @@ import { ConvoHistoryResponse } from 'src/app/models/convo-history-response.mode
 import { UserProfile } from 'src/app/models/user-profile.model';
 import { AuthService } from 'src/app/services/auth.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { groupInfo } from 'src/app/models/group-info.model';
 
 
 @Component({
@@ -18,6 +19,8 @@ export class UserListComponent implements OnInit {
   userList?: UserProfile[];
   searchString: string = ''; // Initialize search string
   showSearchResults: boolean = false; // Flag to show/hide search results
+  groups:groupInfo[] = [];
+  showGroups: boolean = true;
   
 
   convoHistory: ConvoHistoryResponse[] = [];
@@ -42,7 +45,18 @@ export class UserListComponent implements OnInit {
       }
     });
 
+    this.authService.getGroups().subscribe({
+      next: (groups) => {
+          this.groups = groups;
+      },
+      error: (error) => {
+          console.error('Error loading groups:', error);
+      }
+    });
+
   }
+
+
 
   // Toggle user selection
   toggleUserSelection(user: UserProfile): void {
