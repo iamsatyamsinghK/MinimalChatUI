@@ -50,6 +50,7 @@ export class GroupSendMessageComponent implements OnInit {
 
     this.selectedUsers = [];
     this.messageContent = '';
+    this.router.navigate(['/user-list']);
   }
 
   closeWindow(): void {

@@ -22,3 +22,22 @@
     padding: 10px;
     border-radius: 10px;
   }
+
+  .message-input{
+    position: fixed;
+    bottom: 0;
+    display: flex;
+    gap: 20px;
+    width: 100%;
+  }
+  .message-input input{
+    width: 65%;
+    padding: 10px;
+  }
+  .message-input button{
+    width: 100px;
+    background-color: rgb(1, 36, 1);
+    color: white;
+    border: none;
+    font-size: 17px;
+  }

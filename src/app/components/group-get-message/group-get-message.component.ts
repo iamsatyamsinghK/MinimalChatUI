@@ -6,6 +6,7 @@ import { switchMap } from 'rxjs/operators';
 import { groupConvoResponse } from 'src/app/models/group-convo-response.model';
 import { UserProfile } from 'src/app/models/user-profile.model';
 import { SendMessageToNewChatRequestDto } from 'src/app/models/SendMessageToNewChatRequestDto.model';
+import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 
 @Component({
   selector: 'app-group-get-message',
@@ -19,6 +20,7 @@ export class GroupGetMessageComponent implements OnInit, OnChanges  {
   messages: groupConvoResponse[] = [];
   user?: UserProfile;
   messageContent: string = '';
+  private connection!: HubConnection;
 
 
 
@@ -43,6 +45,30 @@ export class GroupGetMessageComponent implements OnInit, OnChanges  {
         this.user = response;
       }
     });
+
+    const localToken = localStorage.getItem('token');
+    this.connection = new HubConnectionBuilder()
+
+      .withUrl(`https://localhost:7198/chat/hub?access_token=${localToken}`)
+      .build();
+
+    this.connection.start()
+      .then(() =>
+        console.log('group conn start'))
+        
+      .catch(error => {
+        console.log(error)
+      });
+
+    
+      this.connection.on('Group', (message) => {
+        console.log("Inside group connection")
+
+      console.log("Before Push:", this.messages);
+      this.messages.push(message);
+
+      //this.getConvoHistory();
+    })
 
     this.user = this.authService.getUser();
 
