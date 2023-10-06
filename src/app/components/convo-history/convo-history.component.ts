@@ -156,6 +156,7 @@ export class ConvoHistoryComponent implements OnInit, OnDestroy, OnChanges {
 
 
     else {
+      this.convoHistory = [];
 
       this.model.before = null;
 
@@ -163,6 +164,7 @@ export class ConvoHistoryComponent implements OnInit, OnDestroy, OnChanges {
         next: (response) => {
 
 
+          
 
           this.convoHistory = response.reverse();
           this.currentPosition = response.length;

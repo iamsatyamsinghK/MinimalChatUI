@@ -19,15 +19,15 @@ export class UserListComponent implements OnInit {
   userList?: UserProfile[];
   searchString: string = ''; // Initialize search string
   showSearchResults: boolean = false; // Flag to show/hide search results
-  groups:groupInfo[] = [];
+  groups: groupInfo[] = [];
   showGroups: boolean = true;
-  
+
 
   convoHistory: ConvoHistoryResponse[] = [];
   selectedUsers: UserProfile[] = [];
   collectiveMessageContent: string = '';
 
-  constructor(private authService: AuthService, private router: Router, private _ngZone: NgZone,private snackBar: MatSnackBar) { }
+  constructor(private authService: AuthService, private router: Router, private _ngZone: NgZone, private snackBar: MatSnackBar) { }
 
   ngOnInit(): void {
     this.authService.user().subscribe({
@@ -45,23 +45,18 @@ export class UserListComponent implements OnInit {
       }
     });
 
-    this.authService.getGroups().subscribe({
-      next: (groups) => {
-          this.groups = groups;
-      },
-      error: (error) => {
-          console.error('Error loading groups:', error);
-      }
-    });
+
+
 
   }
 
 
 
-  // Toggle user selection
+
+  
   toggleUserSelection(user: UserProfile): void {
-    
-     
+
+
     // Add or remove from selected users array
     if (user.selected) {
       this.selectedUsers.push(user);
@@ -112,7 +107,7 @@ export class UserListComponent implements OnInit {
         // Clear the selectedUsers array
         this.selectedUsers = [];
       },
-      
+
       error: (error) => {
         console.error('Error sending collective message:', error);
       }

@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { outputAst } from '@angular/compiler';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { SendMessageToNewChatRequestDto } from 'src/app/models/SendMessageToNewChatRequestDto.model';
+import { groupInfo } from 'src/app/models/group-info.model';
 import { UserProfile } from 'src/app/models/user-profile.model';
 import { AuthService } from 'src/app/services/auth.service';
 
@@ -15,10 +17,14 @@ export class GroupSendMessageComponent implements OnInit {
   selectedUsers: UserProfile[] = [];
   selectedUserId: string = '';
   messageContent: string = '';
+  groups:groupInfo[] = [];
 
   constructor(private authService: AuthService, private router: Router) { }
 
+ 
+
   ngOnInit(): void {
+    
     this.authService.getUserList().subscribe({
       next: (response) => {
         this.userList = response;
@@ -47,6 +53,8 @@ export class GroupSendMessageComponent implements OnInit {
     this.authService.sendMessageToNewChat(request).subscribe(response => {
       console.log('Message sent successfully!', response);
     });
+
+
 
     this.selectedUsers = [];
     this.messageContent = '';

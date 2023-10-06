@@ -7,6 +7,7 @@ import { groupConvoResponse } from 'src/app/models/group-convo-response.model';
 import { UserProfile } from 'src/app/models/user-profile.model';
 import { SendMessageToNewChatRequestDto } from 'src/app/models/SendMessageToNewChatRequestDto.model';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
+import { distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-group-get-message',
@@ -44,6 +45,7 @@ export class GroupGetMessageComponent implements OnInit, OnChanges  {
       next: (response) => {
         this.user = response;
       }
+      
     });
 
     const localToken = localStorage.getItem('token');
@@ -62,13 +64,16 @@ export class GroupGetMessageComponent implements OnInit, OnChanges  {
 
     
       this.connection.on('Group', (message) => {
-        console.log("Inside group connection")
-
-      console.log("Before Push:", this.messages);
-      this.messages.push(message);
-
-      //this.getConvoHistory();
+        console.log("Inside group connection");
+        console.log("Before Push:", this.messages);
+    
+        // Check if the message already exists in the messages array
+        const existingMessage = this.messages.find(m => m.messageId === message.messageId);
+        if (!existingMessage) {
+            this.messages.push(message);
+        }
     })
+    
 
     this.user = this.authService.getUser();
 
@@ -81,22 +86,38 @@ export class GroupGetMessageComponent implements OnInit, OnChanges  {
           return this.authService.getGroupConvoHistory(this.model);
         }
         return [];
-      })
+      }),
+      distinctUntilChanged() // Add distinctUntilChanged here to avoid duplicate messages
     ).subscribe(messages => {
       this.messages = messages;
       // Do something with the updated messages
     });
   }
-  sendMessage(): void {
-    const receiverIds = this.messages.flatMap(message => message.receiverIds);
+  
+  sendMessage(): void { 
+    // Extract unique receiver IDs from the messages using Set
+    const receiverIdsSet = new Set<string>();
+  
+    this.messages.forEach(message => {
+      message.receiverIds.forEach(receiverId => {
+        receiverIdsSet.add(receiverId);
+      });
+    });
+  
+    // Convert the Set back to an array and remove the logged-in user's ID
+    const receiverIds = Array.from(receiverIdsSet).filter(id => id !== this.user?.userId);
+  
+    // Convert the Set back to an array
+    // const receiverIds = Array.from(receiverIdsSet);
+  
     const request: SendMessageToNewChatRequestDto = {
       receiverIds: receiverIds,
       content: this.messageContent
     };
-
+  
     this.authService.sendMessageToNewChat(request).subscribe(response => {
       console.log('Message sent successfully!', response);
-
+  
       // Update messages in real-time
       this.messages.push(response);
       this.messageContent = ''; // Clear the message input after sending

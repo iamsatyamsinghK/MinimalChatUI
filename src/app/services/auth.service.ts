@@ -28,12 +28,6 @@ import { groupInfo } from '../models/group-info.model';
 })
 export class AuthService {
 
-  private groupsSubject = new BehaviorSubject<groupInfo[]>([]);
-  groups$ = this.groupsSubject.asObservable();
-
-  updateGroups(groups: groupInfo[]): void {
-    this.groupsSubject.next(groups);
-  }
  
 
   $user = new BehaviorSubject<UserProfile | undefined>(undefined);
