@@ -9,6 +9,7 @@
       display: flex;
       justify-content: center;
       overflow-y: scroll;
+      height: calc(80vh - 60px);
       /* align-items: center; */
   
     }

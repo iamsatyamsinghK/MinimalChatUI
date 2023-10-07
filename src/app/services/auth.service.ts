@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { LoginRequest } from '../models/login-request.model';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http'
 import { LoginResponse } from '../models/login-response.model';
 import { environment } from 'src/environments/environment.development';
@@ -28,12 +28,16 @@ import { groupInfo } from '../models/group-info.model';
 })
 export class AuthService {
 
- 
+  private groupsSubject: BehaviorSubject<groupInfo[]> = new BehaviorSubject<groupInfo[]>([]);
+  public groups$ = this.groupsSubject.asObservable();
 
   $user = new BehaviorSubject<UserProfile | undefined>(undefined);
 
   constructor(private http: HttpClient, private cookieService: CookieService) {}
 
+  updateGroups(groups: groupInfo[]): void {
+    this.groupsSubject.next(groups);
+  }
 
 
   private path = environment.apiBaseUrl
@@ -70,7 +74,11 @@ export class AuthService {
   }
 
   getGroups(): Observable<groupInfo[]> {
-    return this.http.get<groupInfo[]>(`${environment.apiBaseUrl}/api/UserCRUD/get-group`);
+    return this.http.get<groupInfo[]>(`${environment.apiBaseUrl}/api/UserCRUD/get-group`).pipe(
+      tap((groups) => {
+        this.groupsSubject.next(groups); // Emit the fetched groups to all subscribers
+      })
+    );
   }
   
   getConvoHistory(request: ConvoHistoryRequest): Observable<ConvoHistoryResponse[]> {

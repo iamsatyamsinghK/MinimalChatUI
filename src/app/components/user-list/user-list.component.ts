@@ -1,5 +1,5 @@
 import { Component, NgZone, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SendMessageRequestCollectiveDto } from 'src/app/models/SendMessageRequestCollectiveDto.model';
 import { ConvoHistoryResponse } from 'src/app/models/convo-history-response.model';
 import { UserProfile } from 'src/app/models/user-profile.model';
@@ -27,7 +27,7 @@ export class UserListComponent implements OnInit {
   selectedUsers: UserProfile[] = [];
   collectiveMessageContent: string = '';
 
-  constructor(private authService: AuthService, private router: Router, private _ngZone: NgZone, private snackBar: MatSnackBar) { }
+  constructor(private authService: AuthService,private route: ActivatedRoute, private router: Router, private _ngZone: NgZone, private snackBar: MatSnackBar) { }
 
   ngOnInit(): void {
     this.authService.user().subscribe({
@@ -46,13 +46,18 @@ export class UserListComponent implements OnInit {
     });
 
 
-
+    this.authService.getGroups().subscribe((groups) => {
+      this.groups = groups;
+    });
+  
+    // Subscribe for real-time updates when new groups are created
+    this.authService.groups$.subscribe((updatedGroups) => {
+      this.groups = updatedGroups;
+    });
 
   }
 
-
-
-
+  
   
   toggleUserSelection(user: UserProfile): void {
 

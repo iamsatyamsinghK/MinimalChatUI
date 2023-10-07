@@ -8,6 +8,7 @@ import { UserProfile } from 'src/app/models/user-profile.model';
 import { SendMessageToNewChatRequestDto } from 'src/app/models/SendMessageToNewChatRequestDto.model';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { distinctUntilChanged } from 'rxjs/operators';
+import { groupInfo } from 'src/app/models/group-info.model';
 
 @Component({
   selector: 'app-group-get-message',
@@ -22,6 +23,7 @@ export class GroupGetMessageComponent implements OnInit, OnChanges  {
   user?: UserProfile;
   messageContent: string = '';
   private connection!: HubConnection;
+  groups:groupInfo[] = [];
 
 
 
@@ -47,6 +49,8 @@ export class GroupGetMessageComponent implements OnInit, OnChanges  {
       }
       
     });
+
+  
 
     const localToken = localStorage.getItem('token');
     this.connection = new HubConnectionBuilder()
@@ -122,6 +126,8 @@ export class GroupGetMessageComponent implements OnInit, OnChanges  {
       this.messages.push(response);
       this.messageContent = ''; // Clear the message input after sending
     });
+
+    
   }
 
 }
