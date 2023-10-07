@@ -1,6 +1,6 @@
 export interface UserProfile{
 
-    userId?: string;
+    userId: string;
     name?: string;
     email?: string;
     selected?: boolean; 

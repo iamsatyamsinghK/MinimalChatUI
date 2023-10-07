@@ -1,0 +1,24 @@
+<div class="messaging-container">
+    <div class="header">
+        <div class="close-button" (click)="closeWindow()">X</div>
+        <div class="user-dropdown">
+            <select [(ngModel)]="selectedUserId" (change)="onUserSelected()">
+                <option *ngFor="let user of userList" [ngValue]="user.userId">{{ user.name }}</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="chat-container">
+        <div class="selected-users">
+            <div *ngFor="let user of selectedUsers" class="user-item">
+                {{ user.name }}
+                <button (click)="removeUser(user)">Remove</button>
+            </div>
+        </div>
+
+    </div>
+    <div class="message-input">
+        <input [(ngModel)]="messageContent" placeholder="Type your message...">
+        <button (click)="sendMessage()">Send</button>
+    </div>
+</div>

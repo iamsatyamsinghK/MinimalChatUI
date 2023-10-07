@@ -1,10 +1,11 @@
 import { Component, NgZone, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SendMessageRequestCollectiveDto } from 'src/app/models/SendMessageRequestCollectiveDto.model';
 import { ConvoHistoryResponse } from 'src/app/models/convo-history-response.model';
 import { UserProfile } from 'src/app/models/user-profile.model';
 import { AuthService } from 'src/app/services/auth.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { groupInfo } from 'src/app/models/group-info.model';
 
 
 @Component({
@@ -18,13 +19,15 @@ export class UserListComponent implements OnInit {
   userList?: UserProfile[];
   searchString: string = ''; // Initialize search string
   showSearchResults: boolean = false; // Flag to show/hide search results
-  
+  groups: groupInfo[] = [];
+  showGroups: boolean = true;
+
 
   convoHistory: ConvoHistoryResponse[] = [];
   selectedUsers: UserProfile[] = [];
   collectiveMessageContent: string = '';
 
-  constructor(private authService: AuthService, private router: Router, private _ngZone: NgZone,private snackBar: MatSnackBar) { }
+  constructor(private authService: AuthService,private route: ActivatedRoute, private router: Router, private _ngZone: NgZone, private snackBar: MatSnackBar) { }
 
   ngOnInit(): void {
     this.authService.user().subscribe({
@@ -42,12 +45,23 @@ export class UserListComponent implements OnInit {
       }
     });
 
+
+    this.authService.getGroups().subscribe((groups) => {
+      this.groups = groups;
+    });
+  
+    // Subscribe for real-time updates when new groups are created
+    this.authService.groups$.subscribe((updatedGroups) => {
+      this.groups = updatedGroups;
+    });
+
   }
 
-  // Toggle user selection
+  
+  
   toggleUserSelection(user: UserProfile): void {
-    
-     
+
+
     // Add or remove from selected users array
     if (user.selected) {
       this.selectedUsers.push(user);
@@ -98,7 +112,7 @@ export class UserListComponent implements OnInit {
         // Clear the selectedUsers array
         this.selectedUsers = [];
       },
-      
+
       error: (error) => {
         console.error('Error sending collective message:', error);
       }

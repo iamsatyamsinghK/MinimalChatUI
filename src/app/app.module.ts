@@ -13,6 +13,8 @@ import { RegisterComponent } from './components/register/register.component';
 import { LogsComponent } from './components/logs/logs/logs.component';
 import{MaterialModule} from './material/material.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { GroupSendMessageComponent } from './components/group-send-message/group-send-message.component';
+import { GroupGetMessageComponent } from './components/group-get-message/group-get-message.component';
 
 
 @NgModule({
@@ -23,6 +25,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     UserListComponent,
     RegisterComponent,
     LogsComponent,
+    GroupSendMessageComponent,
+    GroupGetMessageComponent,
     
   ],
   imports: [

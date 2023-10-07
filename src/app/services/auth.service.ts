@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { LoginRequest } from '../models/login-request.model';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http'
 import { LoginResponse } from '../models/login-response.model';
 import { environment } from 'src/environments/environment.development';
@@ -17,18 +17,27 @@ import { LogRequest } from '../models/log-request.model';
 import { LogResponse } from '../models/log-response.model';
 import * as signalR from "@microsoft/signalr";
 import { SendMessageRequestCollectiveDto } from '../models/SendMessageRequestCollectiveDto.model';
+import { SendMessageToNewChatRequestDto } from '../models/SendMessageToNewChatRequestDto.model';
+import { groupConvoRequest } from '../models/group-convo-request.model';
+import { groupConvoResponse } from '../models/group-convo-response.model';
+import { groupInfo } from '../models/group-info.model';
 
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
- 
+
+  private groupsSubject: BehaviorSubject<groupInfo[]> = new BehaviorSubject<groupInfo[]>([]);
+  public groups$ = this.groupsSubject.asObservable();
 
   $user = new BehaviorSubject<UserProfile | undefined>(undefined);
 
   constructor(private http: HttpClient, private cookieService: CookieService) {}
 
+  updateGroups(groups: groupInfo[]): void {
+    this.groupsSubject.next(groups);
+  }
 
 
   private path = environment.apiBaseUrl
@@ -51,34 +60,57 @@ export class AuthService {
     return this.http.post(url, JSON.stringify(credentials), { headers: header, withCredentials: true });
   }
 
+  
   login(request: LoginRequest): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${environment.apiBaseUrl}/api/Auth/login`, request);
   }
-
+  
   register(request: RegisterRequest): Observable<RegisterResponse> {
     return this.http.post<RegisterResponse>(`${environment.apiBaseUrl}/api/Auth/register`, request);
   }
-
+  
   getUserList(): Observable<UserProfile[]> {
     return this.http.get<UserProfile[]>(`${environment.apiBaseUrl}/api/UserCRUD`);
   }
 
+  getGroups(): Observable<groupInfo[]> {
+    return this.http.get<groupInfo[]>(`${environment.apiBaseUrl}/api/UserCRUD/get-group`).pipe(
+      tap((groups) => {
+        this.groupsSubject.next(groups); // Emit the fetched groups to all subscribers
+      })
+    );
+  }
+  
   getConvoHistory(request: ConvoHistoryRequest): Observable<ConvoHistoryResponse[]> {
     //const formattedDate = request.before?.toISOString() || new Date().toISOString();
-
+    
     if (request.before != null) {
-
+      
       return this.http.get<ConvoHistoryResponse[]>(`${environment.apiBaseUrl}/api/UserCRUD/messages?UserId=${request.userId}&Before=${request.before}&Count=${request.count}&Sort=${request.sort}`)
     } else {
       return this.http.get<ConvoHistoryResponse[]>(`${environment.apiBaseUrl}/api/UserCRUD/messages?UserId=${request.userId}&Count=${request.count}&Sort=${request.sort}`)
     }
   }
-
+  
   searchConversation(query: string): Observable<ConvoHistoryResponse[]> {
     return this.http.get<ConvoHistoryResponse[]>(`${environment.apiBaseUrl}/api/UserCRUD/searchMessages?query=${query}`);
   }
-  
 
+  getGroupConvoHistory(request: groupConvoRequest): Observable<groupConvoResponse[]> {
+  
+    
+    if (request.before != null) {
+      
+      return this.http.get<groupConvoResponse[]>(`${environment.apiBaseUrl}/api/UserCRUD/get-conversation?ChatId=${request.chatId}&Before=${request.before}&Count=${request.count}&Sort=${request.sort}`)
+    } else {
+      return this.http.get<groupConvoResponse[]>(`${environment.apiBaseUrl}/api/UserCRUD/get-conversation?ChatId=${request.chatId}&Count=${request.count}&Sort=${request.sort}`)
+    }
+  }
+  
+  
+  sendMessageToNewChat(request: SendMessageToNewChatRequestDto): Observable<any> {
+    return this.http.post<any>(`${environment.apiBaseUrl}/api/UserCRUD/send-message-to-new-chat`, request);
+  }
 
   sendMessage(request: SendMessageRequest): Observable<SendMessageResponse> {
     return this.http.post<SendMessageResponse>(`${environment.apiBaseUrl}/api/UserCRUD/messages`, request);

@@ -9,6 +9,7 @@
       display: flex;
       justify-content: center;
       overflow-y: scroll;
+      height: calc(80vh - 60px);
       /* align-items: center; */
   
     }
@@ -125,3 +126,22 @@
       font-size: 17px;
       
     }
+
+    .group-button {
+      background-color: #4c98af;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    
+    .group-button:hover {
+      background-color: #05395c;
+    }
+    

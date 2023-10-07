@@ -91,14 +91,14 @@ export class ConvoHistoryComponent implements OnInit, OnDestroy, OnChanges {
     
       this.connection.on('BroadCast', (message) => {
         console.log("Inside conncection")
-      message.id = message.messageID;
-      console.log(message.messageID);
+      // message.id = message.MessageId;
+      // console.log(message.MessageId);
       console.log("Before Push:", this.convoHistory);
       this.convoHistory.push(message);
-      console.log("after Push:", this.convoHistory);
-      console.log(message.id);
-      console.log(this.convoHistory);
-      this.getConvoHistory();
+      // console.log("after Push:", this.convoHistory);
+      // console.log(message.id);
+      // console.log(this.convoHistory);
+     // this.getConvoHistory();
     })
 
     this.user = this.authService.getUser();
@@ -156,6 +156,7 @@ export class ConvoHistoryComponent implements OnInit, OnDestroy, OnChanges {
 
 
     else {
+      this.convoHistory = [];
 
       this.model.before = null;
 
@@ -163,6 +164,7 @@ export class ConvoHistoryComponent implements OnInit, OnDestroy, OnChanges {
         next: (response) => {
 
 
+          
 
           this.convoHistory = response.reverse();
           this.currentPosition = response.length;
