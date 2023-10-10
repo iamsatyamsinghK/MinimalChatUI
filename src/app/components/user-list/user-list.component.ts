@@ -1,4 +1,4 @@
-import { Component, NgZone, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SendMessageRequestCollectiveDto } from 'src/app/models/SendMessageRequestCollectiveDto.model';
 import { ConvoHistoryResponse } from 'src/app/models/convo-history-response.model';
@@ -30,7 +30,7 @@ export class UserListComponent implements OnInit {
   selectedUsers: UserProfile[] = [];
   collectiveMessageContent: string = '';
 
-  constructor(private authService: AuthService,private route: ActivatedRoute, private router: Router, private _ngZone: NgZone, private snackBar: MatSnackBar) { }
+  constructor(private authService: AuthService,private route: ActivatedRoute, private router: Router, private _ngZone: NgZone, private snackBar: MatSnackBar, private cdr: ChangeDetectorRef) { }
 
   ngOnInit(): void {
     this.authService.user().subscribe({
@@ -57,16 +57,14 @@ export class UserListComponent implements OnInit {
 
       
     this.connection.on('UpdatedGroups', (updatedGroups) => {
-      if (updatedGroups && updatedGroups.length > 0) {
+      console.log("ON")
+      
           this._ngZone.run(() => {
-              // Add the updated groups to the current groups list without replacing it
-              this.groups = [...this.groups, ...updatedGroups];
 
-              console.log("123")
-              console.log("Updated groups added:", this.groups);
+              this.groups.push(updatedGroups);
+
           });
-      }
-  });
+     });
 
 
     this.user = this.authService.getUser();
@@ -88,6 +86,7 @@ export class UserListComponent implements OnInit {
   
     
   }
+  
 
 
 

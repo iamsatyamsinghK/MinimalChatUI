@@ -35,12 +35,12 @@
                 <div class="groups">
                     <br>
                     <div *ngFor="let group of groups" class="group-badge">
-                      <button [routerLink]="['group-messages', group.chatId]" class="group-button">
-                        {{ group.receivers.slice(0, 2).join(', ') }}
-                        <span *ngIf="group.receivers.length > 2">...</span>
-                      </button>
+                        <button [routerLink]="['group-messages', group.chatId]" class="group-button">
+                            {{ group.receivers.join(', ') }}
+                        </button>
                     </div>
                 </div>
+                
             </span>
         </div>
                   
