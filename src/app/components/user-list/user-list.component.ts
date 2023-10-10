@@ -1,4 +1,4 @@
-import { Component, NgZone, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SendMessageRequestCollectiveDto } from 'src/app/models/SendMessageRequestCollectiveDto.model';
 import { ConvoHistoryResponse } from 'src/app/models/convo-history-response.model';
@@ -6,6 +6,8 @@ import { UserProfile } from 'src/app/models/user-profile.model';
 import { AuthService } from 'src/app/services/auth.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { groupInfo } from 'src/app/models/group-info.model';
+import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
+
 
 
 @Component({
@@ -21,13 +23,14 @@ export class UserListComponent implements OnInit {
   showSearchResults: boolean = false; // Flag to show/hide search results
   groups: groupInfo[] = [];
   showGroups: boolean = true;
+  private connection!: HubConnection;
 
 
   convoHistory: ConvoHistoryResponse[] = [];
   selectedUsers: UserProfile[] = [];
   collectiveMessageContent: string = '';
 
-  constructor(private authService: AuthService,private route: ActivatedRoute, private router: Router, private _ngZone: NgZone, private snackBar: MatSnackBar) { }
+  constructor(private authService: AuthService,private route: ActivatedRoute, private router: Router, private _ngZone: NgZone, private snackBar: MatSnackBar, private cdr: ChangeDetectorRef) { }
 
   ngOnInit(): void {
     this.authService.user().subscribe({
@@ -36,6 +39,33 @@ export class UserListComponent implements OnInit {
 
       }
     });
+
+    const localToken = localStorage.getItem('token');
+    this.connection = new HubConnectionBuilder()
+
+      .withUrl(`https://localhost:7198/chat/hub?access_token=${localToken}`)
+      .build();
+
+      this.connection.start()
+      .then(() => {
+        console.log('Group add Connection started');
+       
+      })
+      .catch(error => {
+        console.error(error);
+      });
+
+      
+    this.connection.on('UpdatedGroups', (updatedGroups) => {
+      console.log("ON")
+      
+          this._ngZone.run(() => {
+
+              this.groups.push(updatedGroups);
+
+          });
+     });
+
 
     this.user = this.authService.getUser();
 
@@ -50,12 +80,15 @@ export class UserListComponent implements OnInit {
       this.groups = groups;
     });
   
-    // Subscribe for real-time updates when new groups are created
     this.authService.groups$.subscribe((updatedGroups) => {
       this.groups = updatedGroups;
     });
-
+  
+    
   }
+  
+
+
 
   
   
