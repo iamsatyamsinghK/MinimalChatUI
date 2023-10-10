@@ -9,6 +9,7 @@ import { groupInfo } from 'src/app/models/group-info.model';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 
 
+
 @Component({
   selector: 'app-user-list',
   templateUrl: './user-list.component.html',
@@ -54,12 +55,19 @@ export class UserListComponent implements OnInit {
         console.error(error);
       });
 
-      this.connection.on('UpdatedGroups', (groups) => {
-        this._ngZone.run(() => {
-          this.groups = groups;
-          console.log("Updated groups:", groups);
-        });
-      });
+      
+    this.connection.on('UpdatedGroups', (updatedGroups) => {
+      if (updatedGroups && updatedGroups.length > 0) {
+          this._ngZone.run(() => {
+              // Add the updated groups to the current groups list without replacing it
+              this.groups = [...this.groups, ...updatedGroups];
+
+              console.log("123")
+              console.log("Updated groups added:", this.groups);
+          });
+      }
+  });
+
 
     this.user = this.authService.getUser();
 
@@ -77,6 +85,8 @@ export class UserListComponent implements OnInit {
     this.authService.groups$.subscribe((updatedGroups) => {
       this.groups = updatedGroups;
     });
+  
+    
   }
 
 
