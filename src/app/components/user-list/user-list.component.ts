@@ -56,15 +56,42 @@ export class UserListComponent implements OnInit {
       });
 
       
-    this.connection.on('UpdatedGroups', (updatedGroups) => {
-      console.log("ON")
+      this.connection.on('UpdatedGroups', (updatedGroups) => {
+        console.log("ON");
       
-          this._ngZone.run(() => {
+        this._ngZone.run(() => {
+          // Check if the group already exists in the groups array
+          const existingGroupIndex = this.groups.findIndex(group => group.chatId === updatedGroups.chatId);
+      
+          // If the group doesn't exist, add it to the groups array
+          if (existingGroupIndex === -1) {
+            this.groups.push(updatedGroups);
+          } else {
+            // If the group already exists, update its properties
+            this.groups[existingGroupIndex] = updatedGroups;
+          }
+        });
+      });
 
-              this.groups.push(updatedGroups);
+      
 
-          });
-     });
+     this.connection.on('BroadCast', (message) => {
+      console.log("HU");
+
+
+      
+        // Display a notification
+        this.Notification(message.senderName, message.content,message.senderId);
+
+
+    });
+
+    this.connection.on('Group', (message) => {
+      console.log("Inside group connection");
+      console.log("THU");
+
+      this.Notification2(message.receivers, message.content,message.chatId);
+  })
 
 
     this.user = this.authService.getUser();
@@ -86,12 +113,66 @@ export class UserListComponent implements OnInit {
   
     
   }
-  
+
+  private Notification(senderName: string, content: string, id:string): void {
+    if (Notification.permission === 'granted') {
+      const notification = new Notification('New Message', {
+        body: `${senderName}: ${content}`
+      });
+
+      notification.onclick = () => {
+        // Handle notification click, navigate to the conversation component
+        this.navigateToConversation(id); 
+        // this.hasUnreadMessages = false;
+        notification.close();
+      };
+    } else if (Notification.permission !== 'denied') {
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+          this.Notification(senderName, content,id);
+        }
+      });
+    }
+  }
+
+  private Notification2(senderName: string, content: string, id:string): void {
+    if (Notification.permission === 'granted') {
+      const notification = new Notification('New Message', {
+        body: `${senderName}: ${content}`
+      });
+
+      notification.onclick = () => {
+        // Handle notification click, navigate to the conversation component
+        this.navigateToConversation(id); 
+        // this.hasUnreadMessages = false;
+        notification.close();
+      };
+    } else if (Notification.permission !== 'denied') {
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+          this.Notification(senderName, content,id);
+        }
+      });
+    }
+  }
 
 
+  private navigateToConversation(userId: string | number): void {
+    let url: string;
+  
+    if (typeof userId === 'number') {
+      // If user ID is a number, navigate to a different URL
+      url = `/user-list/group-messages/${userId}`;
+    } else {
+      // If user ID is not a number, navigate to the default URL
+      url = `/user-list/convo/${userId}`;
+    }
+  
+    // Navigate to the conversation component using Angular Router
+    this.router.navigateByUrl(url);
+  }
+  
 
-  
-  
   toggleUserSelection(user: UserProfile): void {
 
 

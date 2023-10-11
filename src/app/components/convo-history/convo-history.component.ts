@@ -91,14 +91,10 @@ export class ConvoHistoryComponent implements OnInit, OnDestroy, OnChanges {
     
       this.connection.on('BroadCast', (message) => {
         console.log("Inside conncection")
-      // message.id = message.MessageId;
-      // console.log(message.MessageId);
+        if (message.senderId == this.receiverId ){
       console.log("Before Push:", this.convoHistory);
       this.convoHistory.push(message);
-      // console.log("after Push:", this.convoHistory);
-      // console.log(message.id);
-      // console.log(this.convoHistory);
-     // this.getConvoHistory();
+        }
     })
 
     this.user = this.authService.getUser();
