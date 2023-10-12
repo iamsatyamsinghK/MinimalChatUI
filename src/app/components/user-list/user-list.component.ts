@@ -7,6 +7,7 @@ import { AuthService } from 'src/app/services/auth.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { groupInfo } from 'src/app/models/group-info.model';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
+import { Subscription } from 'rxjs';
 
 
 
@@ -29,6 +30,8 @@ export class UserListComponent implements OnInit {
   convoHistory: ConvoHistoryResponse[] = [];
   selectedUsers: UserProfile[] = [];
   collectiveMessageContent: string = '';
+  private hasUnreadMessagesSubscription!: Subscription;
+  hasUnreadMessages: boolean = false; 
 
   constructor(private authService: AuthService,private route: ActivatedRoute, private router: Router, private _ngZone: NgZone, private snackBar: MatSnackBar, private cdr: ChangeDetectorRef) { }
 
@@ -39,6 +42,30 @@ export class UserListComponent implements OnInit {
 
       }
     });
+
+    const unreadMessages = localStorage.getItem('unreadMessages');
+    if (unreadMessages) {
+      this.authService.setHasUnreadMessages(true);
+    }
+
+    this.hasUnreadMessagesSubscription = this.authService.hasUnreadMessages$.subscribe(hasUnreadMessages => {
+      this.hasUnreadMessages = hasUnreadMessages;
+
+      // If there are unread messages, show the red dot in the tab
+      if (this.hasUnreadMessages) {
+        localStorage.setItem('unreadMessages', 'true');
+      } else {
+        localStorage.removeItem('unreadMessages');
+      }
+
+      // If there are unread messages, show the red dot in the tab
+      if (this.hasUnreadMessages) {
+        this.setTabNotification(true);
+      }
+    });
+
+
+    
 
     const localToken = localStorage.getItem('token');
     this.connection = new HubConnectionBuilder()
@@ -78,8 +105,7 @@ export class UserListComponent implements OnInit {
      this.connection.on('BroadCast', (message) => {
       console.log("HU");
 
-
-      
+      this.authService.setHasUnreadMessages(true);
         // Display a notification
         this.Notification(message.senderName, message.content,message.senderId);
 
@@ -89,6 +115,8 @@ export class UserListComponent implements OnInit {
     this.connection.on('Group', (message) => {
       console.log("Inside group connection");
       console.log("THU");
+
+      this.authService.setHasUnreadMessages(true);
 
       this.Notification2(message.receivers, message.content,message.chatId);
   })
@@ -114,62 +142,63 @@ export class UserListComponent implements OnInit {
     
   }
 
-  private Notification(senderName: string, content: string, id:string): void {
-    if (Notification.permission === 'granted') {
-      const notification = new Notification('New Message', {
-        body: `${senderName}: ${content}`
-      });
+  ngOnDestroy(): void {
+    // Unsubscribe from the hasUnreadMessages observable
+    this.hasUnreadMessagesSubscription.unsubscribe();
+  }
 
-      notification.onclick = () => {
-        // Handle notification click, navigate to the conversation component
-        this.navigateToConversation(id); 
-        // this.hasUnreadMessages = false;
-        notification.close();
-      };
-    } else if (Notification.permission !== 'denied') {
-      Notification.requestPermission().then(permission => {
-        if (permission === 'granted') {
-          this.Notification(senderName, content,id);
-        }
-      });
+  private setTabNotification(hasUnreadMessages: boolean): void {
+    const title = 'MinimalChatUI';
+    if (hasUnreadMessages) {
+      document.title = '* ' + title; // Add a red dot to the tab title
+    } else {
+      document.title = title; // Remove the red dot from the tab title
     }
   }
 
-  private Notification2(senderName: string, content: string, id:string): void {
-    if (Notification.permission === 'granted') {
-      const notification = new Notification('New Message', {
-        body: `${senderName}: ${content}`
-      });
+  private Notification(senderName: string, content: string, id: string): void {
+    const notificationMessage = `${senderName}: ${content}`;
+    const snackBarRef = this.snackBar.open(notificationMessage, 'View', {
+      duration: 5000, // Snackbar visible for 5 seconds
+      verticalPosition: 'bottom',
+      panelClass: ['custom-snackbar'] // Add your custom CSS class for styling
+    });
+  
+    snackBarRef.onAction().subscribe(() => {
+      // Handle notification click, navigate to the conversation component
+      this.navigateToConversation(id);
+    });
+  }
 
-      notification.onclick = () => {
-        // Handle notification click, navigate to the conversation component
-        this.navigateToConversation(id); 
-        // this.hasUnreadMessages = false;
-        notification.close();
-      };
-    } else if (Notification.permission !== 'denied') {
-      Notification.requestPermission().then(permission => {
-        if (permission === 'granted') {
-          this.Notification(senderName, content,id);
-        }
-      });
-    }
+  private Notification2(senderName: string, content: string, id: string): void {
+    const notificationMessage = `${senderName}: ${content}`;
+    const snackBarRef = this.snackBar.open(notificationMessage, 'View', {
+      duration: 5000, // Snackbar visible for 5 seconds
+      verticalPosition: 'bottom',
+      panelClass: ['custom-snackbar'] // Add your custom CSS class for styling
+    });
+  
+    snackBarRef.onAction().subscribe(() => {
+      // Handle notification click, navigate to the conversation component
+      this.navigateToConversation(id);
+    });
   }
 
 
   private navigateToConversation(userId: string | number): void {
     let url: string;
-  
+
     if (typeof userId === 'number') {
-      // If user ID is a number, navigate to a different URL
       url = `/user-list/group-messages/${userId}`;
     } else {
-      // If user ID is not a number, navigate to the default URL
       url = `/user-list/convo/${userId}`;
     }
-  
+
     // Navigate to the conversation component using Angular Router
     this.router.navigateByUrl(url);
+    localStorage.removeItem('unreadMessages');
+    const title = 'MinimalChatUI';
+    document.title = title;
   }
   
 

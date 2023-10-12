@@ -74,6 +74,7 @@ export class ConvoHistoryComponent implements OnInit, OnDestroy, OnChanges {
       }
     });
 
+  
     const localToken = localStorage.getItem('token');
     this.connection = new HubConnectionBuilder()
 
@@ -94,6 +95,7 @@ export class ConvoHistoryComponent implements OnInit, OnDestroy, OnChanges {
         if (message.senderId == this.receiverId ){
       console.log("Before Push:", this.convoHistory);
       this.convoHistory.push(message);
+  
         }
     })
 
@@ -106,10 +108,14 @@ export class ConvoHistoryComponent implements OnInit, OnDestroy, OnChanges {
           this.model.userId = this.receiverId;
           this.modelSend.receiverId = this.receiverId;
           this.getConvoHistory();
+          
+
 
         }
       }
     });
+
+    
   }
 
   ngOnDestroy(): void {
@@ -141,13 +147,19 @@ export class ConvoHistoryComponent implements OnInit, OnDestroy, OnChanges {
           this.convoHistory = [...olderMessages, ...this.convoHistory]
 
           this.currentPosition += response.length;
-          ;
+          if (this.convoHistory.length > 0 && this.convoHistory[this.convoHistory.length - 1].senderId === this.receiverId) {
+            localStorage.removeItem('unreadMessages');
+            const title = 'MinimalChatUI';
+            document.title = title;
+            
+          }
         },
         error: (error) => {
           console.error('Error fetching conversation history:', error);
         }
       });
       console.log("sdgrhdrthth", this.convoHistory[0].timestamp)
+      
     }
 
 
@@ -164,6 +176,11 @@ export class ConvoHistoryComponent implements OnInit, OnDestroy, OnChanges {
 
           this.convoHistory = response.reverse();
           this.currentPosition = response.length;
+          if (this.convoHistory.length > 0 && this.convoHistory[this.convoHistory.length - 1].senderId === this.receiverId) {
+            localStorage.removeItem('unreadMessages');
+            const title = 'MinimalChatUI';
+            document.title = title;
+          }
 
           setTimeout(() => {
             this.scrollMessageContainerToBottom();

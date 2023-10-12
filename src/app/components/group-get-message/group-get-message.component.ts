@@ -88,6 +88,8 @@ export class GroupGetMessageComponent implements OnInit, OnChanges  {
           this.chatId = parseInt(chatIdString, 10);
           this.model.chatId = this.chatId;
           return this.authService.getGroupConvoHistory(this.model);
+
+
         }
         return [];
       }),
@@ -95,6 +97,11 @@ export class GroupGetMessageComponent implements OnInit, OnChanges  {
     ).subscribe(messages => {
       this.messages = messages;
       // Do something with the updated messages
+      if (this.messages.length > 0 && this.messages[this.messages.length - 1].chatId === this.chatId) {
+        localStorage.removeItem('unreadMessages');
+        const title = 'MinimalChatUI';
+        document.title = title;
+      }
     });
   }
   
