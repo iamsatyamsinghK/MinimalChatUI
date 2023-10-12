@@ -39,6 +39,13 @@ export class AuthService {
     this.groupsSubject.next(groups);
   }
 
+  private hasUnreadMessagesSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  public hasUnreadMessages$: Observable<boolean> = this.hasUnreadMessagesSubject.asObservable();
+
+  setHasUnreadMessages(hasUnreadMessages: boolean): void {
+    this.hasUnreadMessagesSubject.next(hasUnreadMessages);
+  }
+
 
   private path = environment.apiBaseUrl
 
