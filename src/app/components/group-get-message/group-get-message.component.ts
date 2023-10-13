@@ -92,6 +92,10 @@ export class GroupGetMessageComponent implements OnInit, OnChanges  {
 
         }
         return [];
+
+
+
+        
       }),
       distinctUntilChanged() // Add distinctUntilChanged here to avoid duplicate messages
     ).subscribe(messages => {

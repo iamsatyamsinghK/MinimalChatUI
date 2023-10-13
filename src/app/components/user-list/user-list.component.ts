@@ -156,32 +156,46 @@ export class UserListComponent implements OnInit {
     }
   }
 
-  private Notification(senderName: string, content: string, id: string): void {
-    const notificationMessage = `${senderName}: ${content}`;
-    const snackBarRef = this.snackBar.open(notificationMessage, 'View', {
-      duration: 5000, // Snackbar visible for 5 seconds
-      verticalPosition: 'bottom',
-      panelClass: ['custom-snackbar'] // Add your custom CSS class for styling
-    });
-  
-    snackBarRef.onAction().subscribe(() => {
-      // Handle notification click, navigate to the conversation component
-      this.navigateToConversation(id);
-    });
+  private Notification(senderName: string, content: string, id:string): void {
+    if (Notification.permission === 'granted') {
+      const notification = new Notification('New Message', {
+        body: `${senderName}: ${content}`
+      });
+
+      notification.onclick = () => {
+        // Handle notification click, navigate to the conversation component
+        this.navigateToConversation(id); 
+        // this.hasUnreadMessages = false;
+        notification.close();
+      };
+    } else if (Notification.permission !== 'denied') {
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+          this.Notification(senderName, content,id);
+        }
+      });
+    }
   }
 
-  private Notification2(senderName: string, content: string, id: string): void {
-    const notificationMessage = `${senderName}: ${content}`;
-    const snackBarRef = this.snackBar.open(notificationMessage, 'View', {
-      duration: 5000, // Snackbar visible for 5 seconds
-      verticalPosition: 'bottom',
-      panelClass: ['custom-snackbar'] // Add your custom CSS class for styling
-    });
-  
-    snackBarRef.onAction().subscribe(() => {
-      // Handle notification click, navigate to the conversation component
-      this.navigateToConversation(id);
-    });
+  private Notification2(senderName: string, content: string, id:string): void {
+    if (Notification.permission === 'granted') {
+      const notification = new Notification('New Message', {
+        body: `${senderName}: ${content}`
+      });
+
+      notification.onclick = () => {
+        // Handle notification click, navigate to the conversation component
+        this.navigateToConversation(id); 
+        // this.hasUnreadMessages = false;
+        notification.close();
+      };
+    } else if (Notification.permission !== 'denied') {
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+          this.Notification(senderName, content,id);
+        }
+      });
+    }
   }
 
 
